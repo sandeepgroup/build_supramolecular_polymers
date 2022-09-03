@@ -52,13 +52,15 @@ with open('input.user','r') as fp:
 
 fp.close()
 
-# get natom and tot_atoms 
+# get natom, tot_atoms, total no. configurations 
 
 with open(ip["filename"],'r') as fp:
   natom = fp.readline().rstrip()
 fp.close()
 
 totatom=int(natom)*ip["size"]
+totconf=ip["ntx"]*ip["nty"]*ip["ntz"]*ip["ntwist"]
+
 output='traj_'+ip["label"]+'_'+str(ip["size"])+'.xyz'
 
 # clean up any tmpconfig* and output files present in the current working directory
@@ -92,7 +94,7 @@ for ntx in range(ip["ntx"]):
         ip["tz"]=tz0+ntz*ip["dtz"]
         ip["twist"]=twist0+ntwist*ip["dtwist"]
         nconf+=1 
-        print(" LOG: evaluating tx=%-5.2f ty=%-5.2f tz=%-5.2f twist=%-5.2f " %(ip["tx"],ip["ty"],ip["tz"],ip["twist"]))
+        print(" LOG: evaluating%7d/%-7d tx=%-5.2f ty=%-5.2f tz=%-5.2f twist=%-5.2f " %(nconf,totconf,ip["tx"],ip["ty"],ip["tz"],ip["twist"]))
 
         for i in range(1,ip["size"]):
           input_in="python3 ./orient.py "+ tmpconfig+str(i-1)+".xyz" + " -tz " + str(ip["tz"]) + " -tx " + str(ip["tx"])  + " -ty " + str(ip["ty"])   + " -rz " + str(ip["twist"]) +"  > tmpconfig"+str(i)+".xyz" 
@@ -120,7 +122,7 @@ for ntx in range(ip["ntx"]):
  
 #clean tmp files before changing the parameter 
 os.system("rm -f tmpconfig*")
-print(" LOG: coordinates are written in " + 'traj_'+ip["label"]+'_'+str(ip["size"])+'.xyz')
-print(" LOG: No. of configurations = " + nconf) 
+print(" LOG: coordinates are written to " + output)
+print(" LOG: No. of configurations = " + str(nconf)) 
 print(" LOG: Successful ")
 
