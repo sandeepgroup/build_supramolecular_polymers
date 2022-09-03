@@ -29,14 +29,15 @@ ip["size"]=2
 
 with open('input.user','r') as fp:
   for line in fp:
-    name,var = line.partition('=')[::2]
-    var=var.strip()
-    if re.match("^[0-9-+]*$", var):
-      var=int(var)
-    elif re.match("^[0-9-+.]*$", var):   
-      var=float(var)
+    if not len(line.strip())==0:
+      name,var = line.partition('=')[::2]
+      var=var.strip()
+      if re.match("^[0-9-+]*$", var):
+        var=int(var)
+      elif re.match("^[0-9-+.]*$", var):   
+        var=float(var)
 
-    ip[name.strip()]=var
+      ip[name.strip()]=var
 fp.close()
 
 # re-orient the given configuration so that atom1-atom2 is along x-axis and
