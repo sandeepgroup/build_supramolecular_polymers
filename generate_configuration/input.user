@@ -1,3 +1,6 @@
+# any line starting with '#' is ignored
+# and blank lines are also ignored 
+
 filename = input.xyz
 label = pdi
 atom1 = 7
