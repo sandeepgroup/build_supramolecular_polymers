@@ -1,0 +1,11 @@
+filename = input.xyz
+label = pdi
+atom1 = 7
+atom2 = 45
+atom3 = 16
+tx = 1.0
+ty = 0.0
+tz = 3.5
+twist = 30
+size = 3
+
