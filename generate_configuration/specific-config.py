@@ -29,7 +29,7 @@ ip["size"]=2
 
 with open('input.user','r') as fp:
   for line in fp:
-    if not len(line.strip())==0:
+    if not len(line.strip())==0 and not line.startswith("#"):
       name,var = line.partition('=')[::2]
       var=var.strip()
       if re.match("^[0-9-+]*$", var):
