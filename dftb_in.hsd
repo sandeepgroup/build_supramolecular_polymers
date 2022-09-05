@@ -1,0 +1,64 @@
+Geometry = xyzFormat{
+  <<< "input.xyz"
+  }
+
+Hamiltonian = DFTB {
+  Charge = 0.0000000000000000
+  ReadInitialCharges = No # If yes, charges will be read from charges.bin
+  SCC = yes
+  SCCTolerance = 1.e-5 # should be 10^(-5) by default
+  MaxSCCIterations = 1000
+
+  ThirdOrderFull = YES
+  HubbardDerivs{
+     H = -0.1857  # from H-H.skf of DFTB3
+     C = -0.1492  # from C-C.skf of DFTB3
+     O = -0.1575  # from O-O.skf of DFTB3
+     N = -0.1535  # from N-N.skf of DFTB3 
+  }
+
+  SpinPolarisation = {}
+  Solver = RelativelyRobust {}
+  ElectricField = {}
+
+  Dispersion = DftD3 {
+   s6 = 1.00000000000000
+   s8 = 3.209000000000000
+   Damping = BeckeJohnson {
+     a1 = 0.74600000000000
+     a2 = 4.19100000000000
+   }
+ }
+
+  SlaterKosterFiles = Type2FileNames {
+    Prefix = "/home/sandeep/software/dftb-input/3ob-3-1/"
+    Separator = "-"
+    Suffix = ".skf"
+    LowerCaseTypeName = No
+  }
+
+  MaxAngularMomentum = {
+     H = "s"
+     C = "p"
+     O = "p"
+     N = "p"
+  }
+
+  HCorrection = Damping {
+    Exponent = 4.0500000000000000
+  }
+}
+
+Options = {
+  WriteDetailedOut = No # Yes is the default
+}
+
+ParserOptions = {
+  ParserVersion = 7
+  WriteHSDInput = No
+}
+
+Analysis = {
+  WriteBandOut = No # Default is Yes
+}
+

@@ -13,7 +13,7 @@ print(" Log: Using the ", glob.glob("traj*.xyz"), "as the input file for this sc
 filename=glob.glob("traj*.xyz")[0]
 
 prefix='dftb'
-output="extended_"+filename+".xyz"
+output="extended_"+filename+
 output_energy='energy.json'
 
 nline = len(open(filename).readlines())
