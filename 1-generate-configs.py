@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # code to generate trajectory of configurations for a given order paramters
 # translation along three axis and the twist angle are the order parameters 
+# it also creates a energy.json file for later use 
 
 # the code creates tmpconfig* files. Hence, do not keep any files with prefix tmpconfig.
 # if they are present, they are deleted. 
@@ -10,12 +11,8 @@ import sys
 import re 
 import glob 
 import re
+import json
 from natsort import natsorted
-
-from ase.calculators.dftb import Dftb
-from ase.io import write
-from ase.build import molecule
-from ase import Atoms, Atom
 
 # read input.user file and store the data as dictionary 
 #default values
@@ -38,7 +35,7 @@ ip["ntz"]=1
 ip["ntwist"]=1
 
 
-with open('input.user','r') as fp:
+with open('input-1.user','r') as fp:
   for line in fp:
     if not len(line.strip())==0 and not line.startswith("#"):
       name,var = line.partition('=')[::2]
@@ -61,6 +58,7 @@ fp.close()
 totatom=int(natom)*ip["size"]
 totconf=ip["ntx"]*ip["nty"]*ip["ntz"]*ip["ntwist"]
 
+output_energy='energy.json'
 output='traj_'+ip["label"]+'_'+str(ip["size"])+'.xyz'
 
 # clean up any tmpconfig* and output files present in the current working directory
@@ -83,6 +81,7 @@ ty0=ip["ty"]
 tz0=ip["tz"]
 twist0=ip["twist"]
 
+dict = {}
 nconf=0 
 for ntx in range(ip["ntx"]):
   for nty in range(ip["nty"]):
@@ -106,7 +105,11 @@ for ntx in range(ip["ntx"]):
         
         with open(output,'a+') as f:
            f.write(str(totatom)+"\n")
-           f.write("config=%-7d tx=%-5.2f ty=%-5.2f tz=%-5.2f twist=%-5.2f " %(nconf,ip["tx"],ip["ty"],ip["tz"],ip["twist"]))
+           tx=str('{:<0.2f}'.format(ip["tx"]))
+           ty=str('{:<0.2f}'.format(ip["ty"]))
+           tz=str('{:<0.2f}'.format(ip["tz"]))
+           twist=str('{:<0.1f}'.format(ip["twist"]))
+           f.write("conf_%-7d %s" %(nconf,tx+"_"+ty+"_"+tz+"_"+twist))
            f.write("\n")
         
            for file in rotated_files:
@@ -119,10 +122,12 @@ for ntx in range(ip["ntx"]):
                   for i in range(1,len(line)):
                     f.write("%-7.3f" %(float(line[i]))+" ")
                   f.write("\n")
+
  
 #clean tmp files before changing the parameter 
 os.system("rm -f tmpconfig*")
 print(" LOG: coordinates are written to " + output)
+print(" LOG: energy json init is written to " + output_energy)
 print(" LOG: No. of configurations = " + str(nconf)) 
 print(" LOG: Successful ")
 
