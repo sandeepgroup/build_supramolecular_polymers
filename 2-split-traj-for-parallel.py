@@ -12,8 +12,7 @@ print(" Log: Using the ", glob.glob("traj*.xyz"), "as the input file for this sc
 
 filename=glob.glob("traj*.xyz")[0]
 
-prefix='dftb'
-output="extended_"+filename+
+output="split_"+filename
 output_energy='energy.json'
 
 nline = len(open(filename).readlines())
@@ -23,6 +22,7 @@ nrep=int(nline/(natoms+2))
 # read input.user file 
 ip={}
 ip["nconf_calc"]=1
+ip["prefix"]="energy_dftb"
 
 with open('input-2.user','r') as fp:
   for line in fp:
@@ -39,7 +39,7 @@ with open('input-2.user','r') as fp:
 fp.close()
 
 # create a directory prefix_$num,... and start dividing the trajectory
-
+prefix=ip["prefix"]
 count=0; cdir=100
 fp=open(filename,"r")
 

@@ -1,5 +1,6 @@
 # any line starting with '#' is ignored
 # and blank lines are also ignored 
+# atom1, atom2 and atom3 must be non-collinear 
 
 filename = input.xyz
 label = pdi
