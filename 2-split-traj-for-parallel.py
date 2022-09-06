@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# it requires two environment variables
+# it splits the given traj file as per input-2 file, and creates folders. 
+# Additionally, it also creates the energy.json in each folder 
 
 import os
 import sys
@@ -42,7 +43,6 @@ fp.close()
 prefix=ip["prefix"]
 count=0; cdir=100
 fp=open(filename,"r")
-
 for rep in range(nrep): 
   if count == 0:
 
@@ -90,7 +90,7 @@ for rep in range(nrep):
   
 print(" LOG: coordinates are written to " + output)
 print(" LOG: energy json init is written to " + output_energy)
-print(" LOG: No. of directories created = " + str(ip["nconf_calc"])) 
+print(" LOG: No. of directories created = " + str(cdir-100)) 
 print(" LOG: Successful ")
 
 
