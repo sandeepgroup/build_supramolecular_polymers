@@ -86,7 +86,7 @@ mapfile -t values < <(jq -r '.[]' $ip_energy)
 
 # will check energy.json file. If energy is zero, it will start the dftb+ calculation. 
 # helpful for restarting 
-# also, it creates a back of energy.json file for every 10 configurations, by default 
+# also, it creates a back of energy.json file for every 30 configurations, by default 
 
 len=`jq 'length' ${ip_energy}`
 len=$((len-1)) 
@@ -115,8 +115,8 @@ for j in $(seq 0 $len); do
 
      count_res=$((count_res+1))
 
-     # creates backup file of energy.json file for every 10 steps 
-     if [ $count_res == 10 ]; then 
+     # creates backup file of energy.json file for every 30 conf
+     if [ $count_res == 30 ]; then 
        i=1
        while [ -e \#$nameres.$i\# ] ; do 
          i=$((i+1)) 
