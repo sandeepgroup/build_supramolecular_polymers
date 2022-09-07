@@ -7,7 +7,7 @@ Hamiltonian = DFTB {
   ReadInitialCharges = No # If yes, charges will be read from charges.bin
   SCC = yes
   SCCTolerance = 1.e-5 # should be 10^(-5) by default
-  MaxSCCIterations = 1000
+  MaxSCCIterations = 200
 
   ThirdOrderFull = YES
   HubbardDerivs{
