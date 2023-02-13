@@ -1,0 +1,22 @@
+#!/bin/bash 
+#rot_type has three options - 0:rotation about center, 1:zigzag conformation, 2:user defined center of rotation
+#PSO_type has two options-Globalbest and Localbest
+
+tx_lower=0.0
+tx_upper=3.0
+ty_lower=0.0
+ty_upper=3.0
+tz_lower=3.3
+tz_upper=3.7
+twist_lower=10.0
+twist_upper=50.0
+rot_type=0
+atom1=7    
+atom2=45
+atom3=16
+input_struct=input.xyz
+stack_size=3  
+pso_type=Localbest 
+nparticle_pso=20
+nproc_dftb=1
+label=supramo
