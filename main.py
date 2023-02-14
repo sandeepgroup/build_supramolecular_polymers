@@ -98,6 +98,7 @@ n_particles=input_param["nparticle_pso"]
 
 bounds = (lb,ub)
 
+itera=0
 
 def env_check():
     completedProc = subprocess.run('./check_env.sh')
@@ -114,9 +115,15 @@ def env_check():
     else:
         return 1
         
+def change(itera):
+    itera+=1
+    return itera
+    
 def energy_min(params):
     energy_values_list=[]
-    itera=1
+    itera=change(itera)
+    if itera==1:
+        print(" LOG: iteration,pso_particle,tx,ty,tz,twist,Energy")
     x=0
     for parm in range(len(params)):
         x+=1
@@ -129,12 +136,11 @@ def energy_min(params):
             output = subprocess.check_output('./run_dftb_updated.sh generated_'+label+'_'+str(size)+'.xyz' ,shell=True)
             #output = subprocess.check_output('./run_dftb_updated.sh',shell=True)
         except subprocess.CalledProcessError as grepexc:     
-            print("error code", grepexc.returncode, grepexc.output)
+            print(" ERROR: error code", grepexc.returncode, grepexc.output)
         if(re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))):
             energy_val = float(re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))[0])
             energy_values_list.append(energy_val)   
-        print(itera,x,tx,ty,tz,twist,energy_val)
-    itera+=1 
+        print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.5f" %(itera,x,tx,ty,tz,twist,energy_val))
     return energy_values_list
 
 def opt_struct(params):
@@ -207,21 +213,22 @@ def configuration_generate(tx,ty,tz,twist):
         
 
 if(env_check()):
-    print("All inputs are set,we can continue dftb+ calculation")
+    print(" LOG: All inputs are set")
     
     if(pso_type=='Localbest'):
-        print("Running LocalbestPSO algorithm")
+        print(" LOG: Running LocalbestPSO algorithm")
         options = {'c1': 0.5, 'c2': 0.3, 'w':0.9, 'k': 6, 'p': 2}  
         optimizer = LocalBestPSO(n_particles=n_particles, dimensions=4, options=options,bounds=bounds,ftol=ftol)
         
     elif(pso_type=='Globalbest'):
-        print("Running GlobalbestPSO algorithm")
+        print(" LOG: Running GlobalbestPSO algorithm")
         options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}    
         optimizer = GlobalBestPSO(n_particles=n_particles, dimensions=4, options=options,bounds=bounds,ftol=ftol)
     
     cost, pos = optimizer.optimize(energy_min,iterations)
-    print("The best cost and The best position returned by PSO")
-    print(cost,pos) 
+    print(" LOG: the best cost and The best position returned by PSO")
+    print(" LOG: ", cost,pos)
+    #print(" LOG: %0.2f %0.2f %0.2f %0.2f %0.5e" %(pos,cost))
     opt_struct(pos)
 
 
