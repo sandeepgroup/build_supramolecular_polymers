@@ -20,7 +20,7 @@ function dftb_energy_cal {
 	dftb_input='dftb_in.hsd'
 	conv_factor=2625.5 
 
-	ln -s $1  input1.xyz  
+	ln -s $1  tmpinput1.xyz  
 	#ln -s generated_*_*.xyz  input1.xyz  
 
 	$exe 2&>/dev/null 
@@ -37,7 +37,7 @@ function dftb_energy_cal {
 	#       local energy_val=$(echo "$en" | bc -l)
 	#       echo $energy_val
    	fi
-	rm -f input1.xyz 
+	rm -f tmpinput1.xyz 
 	rm -f charges.bin
 	rm -f dftb_pin.hsd
 	rm -f tmp.energy

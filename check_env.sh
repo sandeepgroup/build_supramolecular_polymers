@@ -28,7 +28,7 @@ export OMP_NUM_THREADS=1
 scp ${dftb_input} ${dftb_input}.bak
 sed -e '/ N /d' -e '/ C /d' ${dftb_input} > tmpdftb
 mv tmpdftb ${dftb_input} 
-tmp='input1.xyz' 
+tmp='tmpinput1.xyz' 
 echo "3" > $tmp
 echo  >> $tmp
 echo "O  -0.23980816   -1.09112708    0.00000000" >> $tmp
@@ -39,7 +39,7 @@ pe=`grep 'Total Energy: ' $output | awk '{print $3}'`
 
 #clean
 mv -f ${dftb_input}.bak ${dftb_input}
-rm -f input1.xyz 
+rm -f tmpinput1.xyz 
 rm -f charges.bin
 rm -f dftb_pin.hsd
 rm -f tmp.energy

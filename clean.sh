@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm -f input1.xyz
+rm -f tmpinput1.xyz
 rm -f charges.bin
 rm -f dftb_pin.hsd
 rm -f tmp.energy

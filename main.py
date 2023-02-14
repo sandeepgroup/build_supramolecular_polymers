@@ -4,9 +4,6 @@
 
 import os.path
 import sys
-import pyswarm as ps
-from pyswarm import pso
-import specific_config
 import subprocess
 import os 
 import re
@@ -14,8 +11,7 @@ from natsort import natsorted
 
 from pyswarms.single.global_best import GlobalBestPSO
 from pyswarms.single.local_best import LocalBestPSO
-from os import environ
-import re
+
 
 # set default values  
 # no default values for atom1, atom2, and atom3; they must be entered by the user; otherwise
@@ -98,7 +94,6 @@ n_particles=input_param["nparticle_pso"]
 
 bounds = (lb,ub)
 
-itera=0
 
 def env_check():
     completedProc = subprocess.run('./check_env.sh')
@@ -115,14 +110,15 @@ def env_check():
     else:
         return 1
         
-def change(itera):
-    itera+=1
-    return itera
-    
+counter = 0
+def count():
+    global counter
+    counter += 1
+
 def energy_min(params):
     energy_values_list=[]
-    itera=change(itera)
-    if itera==1:
+    count()
+    if counter==1:
         print(" LOG: iteration,pso_particle,tx,ty,tz,twist,Energy")
     x=0
     for parm in range(len(params)):
@@ -140,11 +136,11 @@ def energy_min(params):
         if(re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))):
             energy_val = float(re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))[0])
             energy_values_list.append(energy_val)   
-        print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.5f" %(itera,x,tx,ty,tz,twist,energy_val))
+        print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f" %(counter,x,tx,ty,tz,twist,energy_val))
     return energy_values_list
 
 def opt_struct(params):
-    print("Generating the optimized structure")
+    print(" Log: Generating the final structure")
     tx = params[0]
     ty = params[1]
     tz = params[2]

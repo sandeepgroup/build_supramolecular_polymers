@@ -1,5 +1,5 @@
 Geometry = xyzFormat{
-  <<< "input1.xyz"
+  <<< "tmpinput1.xyz"
   }
 
 Hamiltonian = DFTB {
@@ -7,7 +7,7 @@ Hamiltonian = DFTB {
   ReadInitialCharges = No # If yes, charges will be read from charges.bin
   SCC = yes
   SCCTolerance = 1.e-5 # should be 10^(-5) by default
-  MaxSCCIterations = 200
+  MaxSCCIterations = 50
 
   ThirdOrderFull = YES
   HubbardDerivs{
