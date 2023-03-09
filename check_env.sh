@@ -5,7 +5,7 @@
 export OMP_NUM_THREADS=1
 
 exe='dftb+' 
-output='dftb.out'
+output='detailed.out'
 dftb_input='dftb_in.hsd'
 conv_factor=2625.5 
 
@@ -34,7 +34,8 @@ echo  >> $tmp
 echo "O  -0.23980816   -1.09112708    0.00000000" >> $tmp
 echo "H   0.72019184   -1.09112708    0.00000000" >> $tmp 
 echo "H  -0.56026274   -0.18619125    0.00000000" >> $tmp 
-$exe > $output 
+#$exe > $output 
+$exe > $output 2> /dev/null
 pe=`grep 'Total Energy: ' $output | awk '{print $3}'`
 
 #clean

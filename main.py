@@ -14,6 +14,28 @@ from pyswarms.single.global_best import GlobalBestPSO
 from pyswarms.single.local_best import LocalBestPSO
 from pyswarms.backend.operators import compute_pbest, compute_objective_function
 
+class bcolors:
+    HEADER = '\033[92m'
+    BLUE = '\033[94m'
+    WARNING = '\033[91m'
+    BOLD = '\033[1m'
+    END = '\033[0m'
+
+# print header in the log file 
+
+print(bcolors.HEADER + bcolors.BOLD + r"""
++-+-+-+-+-+ +-+-+-+-+-+-+-+-+-+ +-+-+-+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+           ____ _____  _    ____ _  ______ _____ _   _
+          / ___|_   _|/ \  / ___| |/ / ___| ____| \ | |
+          \___ \ | | / _ \| |   | ' / |  _|  _| |  \| |
+           ___) || |/ ___ \ |___| . \ |_| | |___| |\  |
+          |____/ |_/_/   \_\____|_|\_\____|_____|_| \_|
+                 Stack generator for supramolecules
++-+-+-+-+-+ +-+-+-+-+-+-+-+-+-+ +-+-+-+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+"""
++bcolors.END 
+)
+
 # set default values  
 # no default values for atom1, atom2, and atom3; they must be entered by the user; otherwise
 # the program will stop. 
@@ -35,14 +57,14 @@ input_param["rot_type"]=0
 input_param["stack_size"]=3
 input_param["input_struct"]='input.xyz'
 input_param["pso_type"]='Globalbest'
-input_param["ener_tol"]=1.e-5
-input_param["maxiterations"]=2
+input_param["ener_tol"]=10
+input_param["maxiterations"]=100
 input_param["nproc_dftb"]=1
-input_param["nparticle_pso"]=20
+input_param["nparticle_pso"]=10
 input_param['c1']=0.5
 input_param['c2']=2.5
 input_param['w']=9
-input_param['dimensions']=4
+input_param['dimensions']=1
 input_param['c1_start']=0.5
 input_param['c1_end']=2.5
 input_param['c2_start']=0.5
@@ -58,7 +80,7 @@ input_param["label"]='supramolecule'
 
 with open('user_input.user','r') as fp:
   for line in fp:
-    if not len(line.strip())==0 and not line.startswith("#"):
+    if not len(line.strip())==0 and not line.lstrip().startswith("#"):
       name,var = line.partition('=')[::2]
       var=var.strip()
       if re.match("^[0-9-+]*$", var):
@@ -76,12 +98,15 @@ if not "atom1" in input_param or not "atom2" in input_param or not "atom3" in in
     sys.exit()
 
 
+# check if input xyz file is present 
 if not os.path.isfile(input_param["input_struct"]):
     print(" Log: xyz file "+input_param["input_struct"]+ " not found")
     print(" Log: Exit ... ") 
     sys.exit()
 
 # print the input parameters along with default settings, if any 
+print( " LOG: print all key and values used by the code ")
+print( " LOG: note that some of the keys displayed here may not be used by the code")
 for key in input_param:
   print( " LOG: "+key+" = "+str(input_param[key]))
 
@@ -155,7 +180,7 @@ elif(dimensions==4):
     param_len=4
     
 else:
-    print("ERROR: Wrong value is given.Check user.input file")
+    print(bcolors.WARNING + "ERROR: Wrong value is given.Check user.input file" + bcolors.END)
     
 bounds =(lb,ub)    
 
@@ -163,14 +188,16 @@ bounds =(lb,ub)
 def env_check():
     completedProc = subprocess.run('./check_env.sh')
     if(completedProc.returncode==1):
-        print(" ERROR: dftb+ input file is not found")
+        print(bcolors.WARNING + " ERROR: dftb+ input file is not found" + bcolors.END)
         exit()
     elif(completedProc.returncode==2):
-        print(" ERROR: dftb+ executable not found on the path")
+        print(bcolors.WARNING + " ERROR: dftb+ executable not found on the path"+ bcolors.END )
         exit()
     elif(completedProc.returncode==3):
-        print(" ERROR: dftb+ test run not successful. Check dftb+ input file")
-        print(" ERROR: stop ... ")
+        print(bcolors.WARNING +" ERROR: dftb+ test run not successful. Check dftb+ input file"+ bcolors.END)
+        print(bcolors.WARNING +" ERROR: check dftb+ parameters directory path"+ bcolors.END)
+        print(bcolors.WARNING +" ERROR: note that the directory path should terminate with /"+ bcolors.END)
+        print(bcolors.WARNING +" ERROR: stop ... "+ bcolors.END)
         exit()
     else:
         return 1
@@ -232,7 +259,7 @@ def energy_cal(tx,ty,tz,twist):
             output = subprocess.check_output('./run_dftb_updated.sh generated_'+label+'_'+str(size)+'.xyz' ,shell=True)
             #output = subprocess.check_output('./run_dftb_updated.sh',shell=True)
         except subprocess.CalledProcessError as grepexc:     
-            print(" ERROR: error code", grepexc.returncode, grepexc.output)
+            print(bcolors.WARNING +" ERROR: error code", grepexc.returncode, grepexc.output+ bcolors.END)
         if(re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))):
             energy_val = float(re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))[0])
             energy_values_list.append(energy_val)   

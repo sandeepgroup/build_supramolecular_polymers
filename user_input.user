@@ -3,7 +3,7 @@
 #PSO_type has two options-Globalbest and Localbest
 #oh_strategy has two options-True:calculation will be done with oh_strategy, False:default calculation.
 #dimension can take four values. 1-one
-tx_lower=0.0
+ # tx_lower=0.0
 tx_upper=3.0
 ty_lower=0.0
 ty_upper=3.0
@@ -33,6 +33,6 @@ k=6
 p=2
 oh_strategy=False
 maxiterations=100
-nproc_dftb=4
+nproc_dftb=1
 label=supramo
 ener_tol=0.001 
