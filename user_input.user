@@ -1,7 +1,8 @@
 #!/bin/bash 
 #rot_type has three options - 0:rotation about center, 1:zigzag conformation, 2:user defined center of rotation
 #PSO_type has two options-Globalbest and Localbest
-
+#oh_strategy has two options-True:calculation will be done with oh_strategy, False:default calculation.
+#dimension can take four values. 1-one
 tx_lower=0.0
 tx_upper=3.0
 ty_lower=0.0
@@ -10,14 +11,28 @@ tz_lower=3.3
 tz_upper=3.7
 twist_lower=10.0
 twist_upper=50.0
-rot_type=0
+dimension=2
+rot_type=1
 atom1=7    
 atom2=45
 atom3=16
 input_struct=input.xyz
-stack_size=2
+stack_size=3
 pso_type=Globalbest 
-nparticle_pso=8
-nproc_dftb=2
+nparticle_pso=20
+c1=2.5
+c2=3.5
+w=1.2
+c1_start=2.5
+c1_end=0.5
+c2_start=0.5
+c2_end=2.5
+w_start=0.9
+w_end=0.4
+k=6
+p=2
+oh_strategy=False
+maxiterations=100
+nproc_dftb=4
 label=supramo
-ener_tol=0.001
+ener_tol=0.001 

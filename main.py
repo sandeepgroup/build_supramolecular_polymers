@@ -1,23 +1,27 @@
 #!/usr/bin/env python
-
-# mandatory:  pyswarms 
+# coding: utf-8
 
 import os.path
 import sys
 import subprocess
 import os 
 import re
+import pyswarms as ps
+import numpy as np
+import time 
 from natsort import natsorted
-
 from pyswarms.single.global_best import GlobalBestPSO
 from pyswarms.single.local_best import LocalBestPSO
-
+from pyswarms.backend.operators import compute_pbest, compute_objective_function
 
 # set default values  
 # no default values for atom1, atom2, and atom3; they must be entered by the user; otherwise
 # the program will stop. 
 
 input_param={}
+start_opts={}
+end_opts={}
+options={}
 
 input_param["tx_lower"]=0.0
 input_param["tx_upper"]=3.0
@@ -32,9 +36,21 @@ input_param["stack_size"]=3
 input_param["input_struct"]='input.xyz'
 input_param["pso_type"]='Globalbest'
 input_param["ener_tol"]=1.e-5
-input_param["maxiterations"]=1000
+input_param["maxiterations"]=2
 input_param["nproc_dftb"]=1
 input_param["nparticle_pso"]=20
+input_param['c1']=0.5
+input_param['c2']=2.5
+input_param['w']=9
+input_param['dimensions']=4
+input_param['c1_start']=0.5
+input_param['c1_end']=2.5
+input_param['c2_start']=0.5
+input_param['c2_end']=2.5
+input_param['w_start']=0.9
+input_param['w_end']=0.4
+input_param['k']=6
+input_param['p']=2
 input_param["label"]='supramolecule'
 
 
@@ -45,7 +61,6 @@ with open('user_input.user','r') as fp:
     if not len(line.strip())==0 and not line.startswith("#"):
       name,var = line.partition('=')[::2]
       var=var.strip()
-     
       if re.match("^[0-9-+]*$", var):
         var=int(var)
       elif re.match("^[0-9-+.]*$", var):   
@@ -53,13 +68,14 @@ with open('user_input.user','r') as fp:
       input_param[name.strip()]=var
 fp.close()
 
+
 # check if atom1, atom2, and atom3 are defined; if not, stop the program
 if not "atom1" in input_param or not "atom2" in input_param or not "atom3" in input_param:
     print(" Log: Enter atom numbers for the atom1, atom2, and atom3")
     print(" Log: Exit ... ") 
     sys.exit()
 
-# check if atom1, atom2, and atom3 are defined; if not, stop the program
+
 if not os.path.isfile(input_param["input_struct"]):
     print(" Log: xyz file "+input_param["input_struct"]+ " not found")
     print(" Log: Exit ... ") 
@@ -70,13 +86,18 @@ for key in input_param:
   print( " LOG: "+key+" = "+str(input_param[key]))
 
 
-global atom1,atom2,atom3,input_struct,pso_type,nproc,rotation_type
-
+global atom1,atom2,atom3,input_struct,pso_type,nproc,rotation_type,neighbour,distance,n_particles,bounds,dimensions,param_len
 
 #renaming the variables for simplicity 
 
-ub = [input_param['tx_upper'],input_param['ty_upper'],input_param['tz_upper'],input_param['twist_upper']]
-lb = [input_param['tx_lower'],input_param['ty_lower'],input_param['tz_lower'],input_param['twist_lower']]
+tx_upper = input_param['tx_upper']
+tx_lower = input_param['tx_lower']
+ty_upper = input_param['ty_upper']
+ty_lower = input_param['ty_lower']
+tz_upper = input_param['tz_upper']
+tz_lower = input_param['tz_lower']
+twist_upper = input_param['twist_upper']
+twist_lower = input_param['twist_lower']
 rot_type = input_param['rot_type']
 atom1 = input_param['atom1']
 atom2 = input_param['atom2']
@@ -88,11 +109,55 @@ pso_type = input_param['pso_type']
 ftol = input_param['ener_tol']
 iterations = input_param['maxiterations'] 
 nproc=input_param['nproc_dftb']
-label=input_param["label"]
+dimensions=input_param['dimension']
+options['c1']=input_param['c1']
+options['c2']=input_param['c2']
+options['w']=input_param['w']
 
+start_opts['c1'] = input_param['c1_start']
+start_opts['c2'] = input_param['c2_start']
+start_opts['w'] = input_param['w_start']
+end_opts['c1'] = input_param['c1_end']
+end_opts['c2'] = input_param['c2_end']
+end_opts['w'] = input_param['w_end']
+
+neighbour=input_param['k']
+distance=input_param['p']
+oh_strategy = eval(input_param['oh_strategy'])
+label=input_param["label"]
 n_particles=input_param["nparticle_pso"]
 
-bounds = (lb,ub)
+
+if(dimensions==1):
+    #tx=0,ty=0,tz=0
+    tx_upper=tx_lower=0
+    ty_upper=ty_lower=0
+    tz_upper=tz_lower=0   
+    ub=[twist_upper]
+    lb=[twist_lower]
+    param_len=1
+elif(dimensions==2):
+        #tx and ty=0
+    tx_upper=tx_lower=0
+    ty_upper=ty_lower=0
+    ub=[tz_upper,twist_upper]
+    lb=[tz_lower,twist_lower]
+    param_len=2
+elif(dimensions==3):
+        #ty=0
+    ty_upper=ty_lower=0
+    ub=[tx_upper,tz_upper,twist_upper]
+    lb=[tx_lower,tz_lower,twist_lower]
+    param_len=3
+elif(dimensions==4):
+    ub = [input_param['tx_upper'],input_param['ty_upper'],input_param['tz_upper'],input_param['twist_upper']]
+    lb = [input_param['tx_lower'],input_param['ty_lower'],input_param['tz_lower'],input_param['twist_lower']]
+    param_len=4
+    
+else:
+    print("ERROR: Wrong value is given.Check user.input file")
+    
+bounds =(lb,ub)    
 
 
 def env_check():
@@ -109,24 +174,59 @@ def env_check():
         exit()
     else:
         return 1
-        
+ 
+
+
+def optimize(objective_func, maxiters, oh_strategy,start_opts, end_opts):
+    global pso_type,neighbour,distance,n_particles,bounds,dimensions
+   
+    if(pso_type=='Globalbest'):
+        opt = ps.single.GlobalBestPSO(n_particles, dimensions=dimensions, options=start_opts,
+                                      bounds=bounds, oh_strategy=oh_strategy, ftol=ftol)
+    elif(pso_type=='Localbest'):
+        opt = ps.single.LocalBestPSO(n_particles, dimensions=dimensions, options=start_opts, bounds=bounds, 
+                                     oh_strategy=oh_strategy, ftol=ftol)
+   
+    swarm = opt.swarm
+    opt.bh.memory = swarm.position
+    opt.vh.memory = swarm.position
+    swarm.pbest_cost = np.full(opt.swarm_size[0], np.inf)
+
+    for i in range(maxiters):
+   
+        # Compute cost for current position and personal best
+        swarm.current_cost =  compute_objective_function(swarm, objective_func)
+        swarm.pbest_pos, swarm.pbest_cost = compute_pbest(swarm)
+
+  
+        best_cost_yet_found = swarm.best_cost
+        if(pso_type=='Globalbest'):
+            swarm.best_pos, swarm.best_cost = opt.top.compute_gbest(swarm)
+        if(pso_type=='Localbest'):
+            swarm.best_pos, swarm.best_cost = opt.top.compute_gbest(swarm,p=distance,k=neighbour)
+
+        swarm.options = opt.oh( opt.options, iternow=i, itermax=maxiters, end_opts=end_opts )
+        print("Iteration:", i," Options: ", swarm.options)    
+
+        swarm.velocity = opt.top.compute_velocity(
+            swarm, opt.velocity_clamp, opt.vh, opt.bounds
+        )
+        swarm.position = opt.top.compute_position(
+            swarm, opt.bounds, opt.bh
+        )
+    final_best_cost = swarm.best_cost.copy()
+    final_best_pos = swarm.pbest_pos[
+        swarm.pbest_cost.argmin()
+    ].copy()
+    return final_best_cost, final_best_pos
+
 counter = 0
 def count():
     global counter
     counter += 1
-
-def energy_min(params):
-    energy_values_list=[]
-    count()
-    if counter==1:
-        print(" LOG: iteration,pso_particle,tx,ty,tz,twist,Energy")
-    x=0
-    for parm in range(len(params)):
-        x+=1
-        tx = params[parm][0]
-        ty = params[parm][1]
-        tz = params[parm][2]
-        twist = params[parm][3]         
+    
+def energy_cal(tx,ty,tz,twist):
+        energy_values_list=[]
         configuration_generate(tx,ty,tz,twist)
         try:
             output = subprocess.check_output('./run_dftb_updated.sh generated_'+label+'_'+str(size)+'.xyz' ,shell=True)
@@ -136,16 +236,78 @@ def energy_min(params):
         if(re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))):
             energy_val = float(re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))[0])
             energy_values_list.append(energy_val)   
-        print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f" %(counter,x,tx,ty,tz,twist,energy_val))
-    return energy_values_list
+        return energy_val,energy_values_list
+    
+    
+def energy_min(params):
+    global param_len
+    count()
+    if counter==1:
+        print(" LOG: iteration,pso_particle,tx,ty,tz,twist,Energy")
+    x=0
+    if(param_len==1): #only twist parameter
+        for parm in range(len(params)):
+            x+=1
+            tx=ty=tz=0
+            twist = params[parm][0]  
+            energy_val,energy_value_list = energy_cal(tx,ty,tz,twist)
+            print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f" %(counter,x,tx,ty,tz,twist,energy_val))
+        return energy_value_list
+    elif(param_len==2):#tz,twist
+        for parm in range(len(params)):
+            x+=1
+            tx=ty=0
+            tz = params[parm][0]
+            twist = params[parm][1]
+            energy_val,energy_value_list = energy_cal(tx,ty,tz,twist)
+            print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f" %(counter,x,tx,ty,tz,twist,energy_val))
+        return energy_value_list
+    elif(param_len==3):#tx,tz,twist 
+        for parm in range(len(params)):
+            x+=1
+            ty=0
+            tx = params[parm][0]
+            tz = params[parm][1]
+            twist = params[parm][2] 
+            energy_val,energy_value_list = energy_cal(tx,ty,tz,twist)
+            print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f" %(counter,x,tx,ty,tz,twist,energy_val))
+        return energy_value_list
+    elif(param_len==4):#tx,tz,twist
+        for parm in range(len(params)):
+            x+=1
+            tx = params[parm][0]
+            ty = params[parm][1]
+            tz = params[parm][2]
+            twist = params[parm][3] 
+            energy_val,energy_value_list = energy_cal(tx,ty,tz,twist)
+            print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f" %(counter,x,tx,ty,tz,twist,energy_val))
+        return energy_value_list
 
 def opt_struct(params):
     print(" Log: Generating the final structure")
-    tx = params[0]
-    ty = params[1]
-    tz = params[2]
-    twist = params[3]
-    configuration_generate(tx,ty,tz,twist)
+    global param_len
+    if(param_len==1): #only twist parameter
+            tx=ty=tz=0
+            twist = params[0]  
+            configuration_generate(tx,ty,tz,twist)
+    elif(param_len==2):
+            tx=ty=0
+            tz = params[0]
+            twist = params[1]
+            configuration_generate(tx,ty,tz,twist)         
+    elif(param_len==3):#tx,tz,twist 
+            ty=0
+            tx = params[0]
+            tz = params[1]
+            twist = params[2] 
+            configuration_generate(tx,ty,tz,twist)
+    elif(param_len==4):#tx,tz,twist
+            tx = params[0]
+            ty = params[1]
+            tz = params[2]
+            twist = params[3] 
+            configuration_generate(tx,ty,tz,twist)
+            
 
 
 # re-orient the given configuration so that atom1-atom2 is along x-axis and
@@ -178,7 +340,7 @@ def configuration_generate(tx,ty,tz,twist):
 
   #combining the files 
   with open(input_struct,'r') as fp:
-  	natom = fp.readline().rstrip()
+      natom = fp.readline().rstrip()
   fp.close()
   
   totatom=int(natom)*size
@@ -204,28 +366,56 @@ def configuration_generate(tx,ty,tz,twist):
           f.write("\n")
   
   #print(" LOG: coordinates are written in " + 'generated_'+ip["label"]+'_'+str(ip["size"])+'.xyz')
-  #clean tmp files 
   os.system("rm -f tmpconfig*")
         
-
 if(env_check()):
     print(" LOG: All inputs are set")
     
     if(pso_type=='Localbest'):
         print(" LOG: Running LocalbestPSO algorithm")
-        options = {'c1': 0.5, 'c2': 0.3, 'w':0.9, 'k': 6, 'p': 2}  
-        optimizer = LocalBestPSO(n_particles=n_particles, dimensions=4, options=options,bounds=bounds,ftol=ftol)
+        options['k']=neighbour
+        options['p'] = distance
+        #two conditons : oh_strategy=False and oh_Staragy=True
+        if(oh_strategy == False): 
+            pso_type='Localbest'
+            print("LocalbestPSO and oh_strategy=0")
+            
+            optimizer = LocalBestPSO(n_particles=n_particles, dimensions=dimensions,
+                                     options=options,bounds=bounds,ftol=ftol,ftol_iter=iterations)
+            cost, pos = optimizer.optimize(energy_min,iterations)
+            
+        elif(oh_strategy == True):
+            print("calculation with oh_strategy and localbestpso")
+            pso_type='Localbest'
+            start_opts['k']=end_opts['k']=neighbour
+            start_opts['p']=end_opts['p']=distance
+            oh_strategy={ "w":'exp_decay', "c1":'nonlin_mod',"c2":'lin_variation'}
+            cost, pos=optimize(energy_min, iterations, oh_strategy, start_opts, end_opts)
+        
+        
         
     elif(pso_type=='Globalbest'):
         print(" LOG: Running GlobalbestPSO algorithm")
-        options = {'c1': 0.5, 'c2': 0.3, 'w': 0.9}    
-        optimizer = GlobalBestPSO(n_particles=n_particles, dimensions=4, options=options,bounds=bounds,ftol=ftol)
-    
-    cost, pos = optimizer.optimize(energy_min,iterations)
+        
+        if(oh_strategy==False): #default
+            print("Globalbest with oh_strategy=0")
+            pso_type='Globalbest'
+            optimizer = GlobalBestPSO(n_particles=n_particles, dimensions=dimensions,options=options,
+                                      bounds=bounds,ftol=ftol,ftol_iter=iterations)
+            cost, pos = optimizer.optimize(energy_min,iterations)
+            
+        elif(oh_strategy==True):
+            pso_type='Globalbest'
+            print("calculation with oh_strategy and globalbest")
+            oh_strategy={ "w":'exp_decay', "c1":'nonlin_mod',"c2":'lin_variation'}
+            cost, pos=optimize(energy_min, iterations, oh_strategy, start_opts, end_opts)
+                
+        
+     
+
     print(" LOG: the best cost and The best position returned by PSO")
     print(" LOG: ", cost,pos)
-    #print(" LOG: %0.2f %0.2f %0.2f %0.2f %0.5e" %(pos,cost))
     opt_struct(pos)
 
-
+    
 
