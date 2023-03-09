@@ -404,7 +404,7 @@ def configuration_generate(tx,ty,tz,twist):
   os.system("rm -f tmpconfig*")
         
 if(env_check()):
-    print(" LOG: All inputs are set")
+    print(" LOG: All inputs are set \n")
     
     if(pso_type=='Localbest'):
         print(" LOG: Running LocalbestPSO algorithm")
