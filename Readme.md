@@ -1,4 +1,4 @@
-<!-- language: lang-none -->
+<pre>
 
 +-+-+-+-+-+ +-+-+-+-+-+-+-+-+-+ +-+-+-+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
            ____ _____  _    ____ _  ______ _____ _   _
@@ -9,6 +9,7 @@
                  Stack generator for supramolecules
 +-+-+-+-+-+ +-+-+-+-+-+-+-+-+-+ +-+-+-+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+</pre>
 
 Use this code to generate a configuration for the given input parameters such <br />
 tx = translation along x-axis <br />
