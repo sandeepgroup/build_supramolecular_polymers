@@ -58,6 +58,7 @@ input_param["stack_size"]=3
 input_param["input_struct"]='input.xyz'
 input_param["pso_type"]='Globalbest'
 input_param["ener_tol"]=10
+input_param["ener_tol_iter"]=5
 input_param["maxiterations"]=100
 input_param["nproc_dftb"]=1
 input_param["nparticle_pso"]=10
@@ -132,6 +133,7 @@ rotation_type=input_param["rot_type"]
 size = input_param['stack_size']
 pso_type = input_param['pso_type']
 ftol = input_param['ener_tol']
+ftol_iter = input_param['ener_tol_iter']
 iterations = input_param['maxiterations'] 
 nproc=input_param['nproc_dftb']
 dimensions=input_param['dimension']
@@ -154,10 +156,10 @@ n_particles=input_param["nparticle_pso"]
 
 
 if(dimensions==1):
-    #tx=0,ty=0,tz=0
+    #tx=0,ty=0,tz=3.5
     tx_upper=tx_lower=0
     ty_upper=ty_lower=0
-    tz_upper=tz_lower=0   
+    tz_upper=tz_lower=3.5
     ub=[twist_upper]
     lb=[twist_lower]
     param_len=1
@@ -253,7 +255,6 @@ def count():
     counter += 1
     
 def energy_cal(tx,ty,tz,twist):
-        energy_values_list=[]
         configuration_generate(tx,ty,tz,twist)
         try:
             output = subprocess.check_output('./run_dftb_updated.sh generated_'+label+'_'+str(size)+'.xyz' ,shell=True)
@@ -262,12 +263,13 @@ def energy_cal(tx,ty,tz,twist):
             print(bcolors.WARNING +" ERROR: error code", grepexc.returncode, grepexc.output+ bcolors.END)
         if(re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))):
             energy_val = float(re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))[0])
-            energy_values_list.append(energy_val)   
-        return energy_val,energy_values_list
+        return energy_val
     
     
 def energy_min(params):
     global param_len
+
+    energy_value_list=[]
     count()
     if counter==1:
         print(" LOG: iteration,pso_particle,tx,ty,tz,twist,Energy")
@@ -275,9 +277,11 @@ def energy_min(params):
     if(param_len==1): #only twist parameter
         for parm in range(len(params)):
             x+=1
-            tx=ty=tz=0
+            tx=ty=0
+            tz=3.5
             twist = params[parm][0]  
-            energy_val,energy_value_list = energy_cal(tx,ty,tz,twist)
+            energy_val = energy_cal(tx,ty,tz,twist)
+            energy_value_list.append(energy_val)
             print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f" %(counter,x,tx,ty,tz,twist,energy_val))
         return energy_value_list
     elif(param_len==2):#tz,twist
@@ -286,7 +290,8 @@ def energy_min(params):
             tx=ty=0
             tz = params[parm][0]
             twist = params[parm][1]
-            energy_val,energy_value_list = energy_cal(tx,ty,tz,twist)
+            energy_val = energy_cal(tx,ty,tz,twist)
+            energy_value_list.append(energy_val)
             print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f" %(counter,x,tx,ty,tz,twist,energy_val))
         return energy_value_list
     elif(param_len==3):#tx,tz,twist 
@@ -296,7 +301,8 @@ def energy_min(params):
             tx = params[parm][0]
             tz = params[parm][1]
             twist = params[parm][2] 
-            energy_val,energy_value_list = energy_cal(tx,ty,tz,twist)
+            energy_val = energy_cal(tx,ty,tz,twist)
+            energy_value_list.append(energy_val)
             print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f" %(counter,x,tx,ty,tz,twist,energy_val))
         return energy_value_list
     elif(param_len==4):#tx,tz,twist
@@ -306,7 +312,8 @@ def energy_min(params):
             ty = params[parm][1]
             tz = params[parm][2]
             twist = params[parm][3] 
-            energy_val,energy_value_list = energy_cal(tx,ty,tz,twist)
+            energy_val = energy_cal(tx,ty,tz,twist)
+            energy_value_list.append(energy_val)
             print(" LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f" %(counter,x,tx,ty,tz,twist,energy_val))
         return energy_value_list
 
@@ -314,7 +321,8 @@ def opt_struct(params):
     print(" Log: Generating the final structure")
     global param_len
     if(param_len==1): #only twist parameter
-            tx=ty=tz=0
+            tx=ty=0
+            tz=3.5
             twist = params[0]  
             configuration_generate(tx,ty,tz,twist)
     elif(param_len==2):
@@ -408,7 +416,7 @@ if(env_check()):
             print("LocalbestPSO and oh_strategy=0")
             
             optimizer = LocalBestPSO(n_particles=n_particles, dimensions=dimensions,
-                                     options=options,bounds=bounds,ftol=ftol,ftol_iter=iterations)
+                                     options=options,bounds=bounds,ftol=ftol,ftol_iter=ftol_iter)
             cost, pos = optimizer.optimize(energy_min,iterations)
             
         elif(oh_strategy == True):
@@ -428,7 +436,7 @@ if(env_check()):
             print("Globalbest with oh_strategy=0")
             pso_type='Globalbest'
             optimizer = GlobalBestPSO(n_particles=n_particles, dimensions=dimensions,options=options,
-                                      bounds=bounds,ftol=ftol,ftol_iter=iterations)
+                                      bounds=bounds,ftol=ftol,ftol_iter=ftol_iter)
             cost, pos = optimizer.optimize(energy_min,iterations)
             
         elif(oh_strategy==True):
