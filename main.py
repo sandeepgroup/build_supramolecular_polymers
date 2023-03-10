@@ -14,6 +14,9 @@ from pyswarms.single.global_best import GlobalBestPSO
 from pyswarms.single.local_best import LocalBestPSO
 from pyswarms.backend.operators import compute_pbest, compute_objective_function
 
+from collections import deque
+
+
 class bcolors:
     HEADER = '\033[92m'
     BLUE = '\033[94m'
@@ -205,22 +208,23 @@ def env_check():
         return 1
  
 
-
+# SKR: ftol_iter stopping criteria implemented 
 def optimize(objective_func, maxiters, oh_strategy,start_opts, end_opts):
     global pso_type,neighbour,distance,n_particles,bounds,dimensions
    
     if(pso_type=='Globalbest'):
         opt = ps.single.GlobalBestPSO(n_particles, dimensions=dimensions, options=start_opts,
-                                      bounds=bounds, oh_strategy=oh_strategy, ftol=ftol)
+                                      bounds=bounds, oh_strategy=oh_strategy, ftol=ftol, ftol_iter=ftol_iter)
     elif(pso_type=='Localbest'):
         opt = ps.single.LocalBestPSO(n_particles, dimensions=dimensions, options=start_opts, bounds=bounds, 
-                                     oh_strategy=oh_strategy, ftol=ftol)
+                                     oh_strategy=oh_strategy, ftol=ftol, ftol_iter=ftol_iter)
    
     swarm = opt.swarm
     opt.bh.memory = swarm.position
     opt.vh.memory = swarm.position
     swarm.pbest_cost = np.full(opt.swarm_size[0], np.inf)
 
+    ftol_history = deque(maxlen=ftol_iter)
     for i in range(maxiters):
    
         # Compute cost for current position and personal best
@@ -233,6 +237,19 @@ def optimize(objective_func, maxiters, oh_strategy,start_opts, end_opts):
             swarm.best_pos, swarm.best_cost = opt.top.compute_gbest(swarm)
         if(pso_type=='Localbest'):
             swarm.best_pos, swarm.best_cost = opt.top.compute_gbest(swarm,p=distance,k=neighbour)
+
+        print(" LOG: " + pso_type + "\t" + 'best_cost ='+ str(swarm.best_cost)+"\n")
+
+        delta = (
+                np.abs(swarm.best_cost - best_cost_yet_found)
+                < ftol
+            )
+        if i < ftol_iter:
+            ftol_history.append(delta)
+        else:
+            ftol_history.append(delta)
+            if all(ftol_history):
+                break 
 
         swarm.options = opt.oh( opt.options, iternow=i, itermax=maxiters, end_opts=end_opts )
         print("Iteration:", i," Options: ", swarm.options)    
