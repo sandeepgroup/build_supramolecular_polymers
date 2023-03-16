@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[9]:
+# In[13]:
 
 
 #!/usr/bin/env python
@@ -52,6 +52,7 @@ input_param={}
 start_opts={}
 end_opts={}
 options={}
+cost_history=[]
 
 input_param["tx_lower"]=0.0
 input_param["tx_upper"]=3.0
@@ -125,7 +126,7 @@ for key in input_param:
     print( " LOG: "+key+" = "+str(input_param[key]))
 
 
-global atom_1,atom_2,atom_3,input_struct,pso_type,nproc,rotation_type,neighbour,distance,n_particles,bounds,dimensions,param_len
+global atom_1,atom_2,atom_3,input_struct,pso_type,nproc,rotation_type,neighbour,distance,n_particles,bounds,dimensions,param_len,cost_history
 
 #renaming the variables for simplicity 
 
@@ -214,7 +215,7 @@ def env_check():
     else:
         return 1
 def optimize(objective_func, maxiters, oh_strategy,start_opts, end_opts):
-    global pso_type,neighbour,distance,n_particles,bounds,dimensions
+    global pso_type,neighbour,distance,n_particles,bounds,dimensions,cost_history
    
     if(pso_type=='Globalbest'):
         opt = ps.single.GlobalBestPSO(n_particles, dimensions=dimensions, options=start_opts,
@@ -243,7 +244,7 @@ def optimize(objective_func, maxiters, oh_strategy,start_opts, end_opts):
             swarm.best_pos, swarm.best_cost = opt.top.compute_gbest(swarm,p=distance,k=neighbour)
 
         print(" LOG: " + "Iteration "+str(i)+"/"+str(maxiters)  + "\t" + 'best_cost ='+ str(swarm.best_cost)+"\n")
-
+        cost_history.append(swarm.best_cost)
         delta = (
                 np.abs(swarm.best_cost - best_cost_yet_found)
                 < ftol
@@ -402,7 +403,7 @@ def configuration_generate(tx,ty,tz,twist):
             os.system(input_in)
     else:
         for i in range(1,size):
-            input_in="python3 orient.py "+ tmpconfig+str(i-1)+".xyz" + " -tz " + str(tz) + " -tx " + str(tx)  + 	" -ty " + str(ty)   + " -rz " + str(twist) +"  > tmpconfig"+str(i)+".xyz"
+            input_in="python3 orient.py "+ tmpconfig+str(i-1)+".xyz" + " -tz " + str(tz) + " -tx " + str(tx)  + " -ty " + str(ty)   + " -rz " + str(twist) +"  > tmpconfig"+str(i)+".xyz"
             os.system(input_in)
 
   #combining the files 
@@ -435,7 +436,6 @@ def configuration_generate(tx,ty,tz,twist):
         
 if(env_check()):
     print(" LOG: All inputs are set \n")
-    
     if(pso_type=='Localbest'):
         options['k']=neighbour
         options['p'] = distance
@@ -445,6 +445,7 @@ if(env_check()):
             optimizer = LocalBestPSO(n_particles=n_particles, dimensions=dimensions,
                                      options=options,bounds=bounds,ftol=ftol,ftol_iter=ftol_iter)
             cost, pos = optimizer.optimize(energy_min,iterations)
+            energy_history(optimizer.cost_history)
             
         elif(oh_strategy == True):
             print(" LOG: Running LocalbestPSO algorithm with oh_strategy")
@@ -453,6 +454,7 @@ if(env_check()):
             start_opts['p']=end_opts['p']=distance
             oh_strategy={ "w":'exp_decay', "c1":'nonlin_mod',"c2":'lin_variation'}
             cost, pos=optimize(energy_min, iterations, oh_strategy, start_opts, end_opts)
+            energy_history(cost_history)
         
         
         
@@ -465,12 +467,14 @@ if(env_check()):
             optimizer = GlobalBestPSO(n_particles=n_particles, dimensions=dimensions,options=options,
                                       bounds=bounds,ftol=ftol,ftol_iter=ftol_iter)
             cost, pos = optimizer.optimize(energy_min,iterations)
+            energy_history(optimizer.cost_history)
             
         elif(oh_strategy==True):
             pso_type='Globalbest'
             print(" LOG: Running GlobalbestPSO algorithm with oh_strategy")
             oh_strategy={ "w":'exp_decay', "c1":'nonlin_mod',"c2":'lin_variation'}
             cost, pos=optimize(energy_min, iterations, oh_strategy, start_opts, end_opts)
+            energy_history(cost_history)
                 
         
      
@@ -478,7 +482,7 @@ if(env_check()):
     print(" LOG: the best cost and The best position returned by PSO")
     print(" LOG: ", cost,pos)
     opt_struct(pos)
-    energy_history(optimizer.cost_history)
+    
 
     
 
