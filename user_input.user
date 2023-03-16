@@ -2,7 +2,6 @@
 #rot_type has three options - 0:rotation about center, 1:zigzag conformation, 2:user defined center of rotation
 #PSO_type has two options-Globalbest and Localbest
 #oh_strategy has two options-True:calculation will be done with oh_strategy, False:default calculation.
-#dimension can take four values. 1-one
  # tx_lower=0.0
 tx_upper=3.0
 ty_lower=0.0
@@ -13,13 +12,11 @@ twist_lower=0.0
 twist_upper=180.0
 dimension=1
 rot_type=1
-atom1=8
-atom2=9
-atom3=10
+atoms=8,9,10
 input_struct=input.xyz
 stack_size=2
 pso_type=Globalbest 
-nparticle_pso=4
+nparticle_pso=5
 c1=0.5
 c2=0.3
 w=0.9
@@ -35,5 +32,5 @@ oh_strategy=False
 maxiterations=200
 nproc_dftb=1
 label=supramo
-ener_tol=1
-ener_tol_iter=10
+ftol=1
+ftol_iter=10
