@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+# In[34]:
+
+
+#!/usr/bin/env python
+# coding: utf-8
+
 # In[13]:
 
 
@@ -53,6 +59,7 @@ start_opts={}
 end_opts={}
 options={}
 cost_history=[]
+position_history=[]
 
 input_param["tx_lower"]=0.0
 input_param["tx_upper"]=3.0
@@ -215,7 +222,7 @@ def env_check():
     else:
         return 1
 def optimize(objective_func, maxiters, oh_strategy,start_opts, end_opts):
-    global pso_type,neighbour,distance,n_particles,bounds,dimensions,cost_history
+    global pso_type,neighbour,distance,n_particles,bounds,dimensions,cost_history,position_history
    
     if(pso_type=='Globalbest'):
         opt = ps.single.GlobalBestPSO(n_particles, dimensions=dimensions, options=start_opts,
@@ -236,7 +243,6 @@ def optimize(objective_func, maxiters, oh_strategy,start_opts, end_opts):
         swarm.current_cost =  compute_objective_function(swarm, objective_func)
         swarm.pbest_pos, swarm.pbest_cost = compute_pbest(swarm)
 
-  
         best_cost_yet_found = swarm.best_cost
         if(pso_type=='Globalbest'):
             swarm.best_pos, swarm.best_cost = opt.top.compute_gbest(swarm)
@@ -245,6 +251,7 @@ def optimize(objective_func, maxiters, oh_strategy,start_opts, end_opts):
 
         print(" LOG: " + "Iteration "+str(i)+"/"+str(maxiters)  + "\t" + 'best_cost ='+ str(swarm.best_cost)+"\n")
         cost_history.append(swarm.best_cost)
+        position_history.append(swarm.best_pos.tolist())
         delta = (
                 np.abs(swarm.best_cost - best_cost_yet_found)
                 < ftol
@@ -269,6 +276,7 @@ def optimize(objective_func, maxiters, oh_strategy,start_opts, end_opts):
         swarm.pbest_cost.argmin()
     ].copy()
     return final_best_cost, final_best_pos
+
 
 counter = 0
 def count():
@@ -365,18 +373,20 @@ def opt_struct(params):
             
 
             
-def energy_history(cost_history):
+def energy_history(cost_history,position_history):
     print(" Log: Saving the best cost energy value for every itreation")
-    header = ["Iteration_Number", "Best_cost_Energy"]
+    header = ["Iteration_Number", "Best_cost_Energy", 'tx','ty','tz','twist']
     iter_num=0
-    with open("Energy_history.xyz","w") as fp:
-        fp.writelines('{:>15}   '.format(head) for head in header) 
+    with open("Energy_position_history.xyz","w") as fp:
+        fp.writelines('{:>15}  '.format(head) for head in header) 
         fp.write("\n")
-        for en in cost_history:
+        for pos in position_history:
+            position = " ".join(map(str, pos))
+            en = cost_history[iter_num]
             iter_num=iter_num+1
             data = []
-            data.extend((iter_num, en))
-            fp.writelines('{:>12}      '.format(energy) for energy in data)
+            data.extend((iter_num, en,position))
+            fp.writelines('{:>10}      '.format(values) for values in data)
             fp.write("\n")
     fp.close()
        
@@ -445,7 +455,7 @@ if(env_check()):
             optimizer = LocalBestPSO(n_particles=n_particles, dimensions=dimensions,
                                      options=options,bounds=bounds,ftol=ftol,ftol_iter=ftol_iter)
             cost, pos = optimizer.optimize(energy_min,iterations)
-            energy_history(optimizer.cost_history)
+            energy_history(optimizer.cost_history,optimizer.position_history)
             
         elif(oh_strategy == True):
             print(" LOG: Running LocalbestPSO algorithm with oh_strategy")
@@ -454,7 +464,7 @@ if(env_check()):
             start_opts['p']=end_opts['p']=distance
             oh_strategy={ "w":'exp_decay', "c1":'nonlin_mod',"c2":'lin_variation'}
             cost, pos=optimize(energy_min, iterations, oh_strategy, start_opts, end_opts)
-            energy_history(cost_history)
+            energy_history(cost_history,position_history)
         
         
         
@@ -467,14 +477,14 @@ if(env_check()):
             optimizer = GlobalBestPSO(n_particles=n_particles, dimensions=dimensions,options=options,
                                       bounds=bounds,ftol=ftol,ftol_iter=ftol_iter)
             cost, pos = optimizer.optimize(energy_min,iterations)
-            energy_history(optimizer.cost_history)
+            energy_history(optimizer.cost_history,optimizer.pos_history)
             
         elif(oh_strategy==True):
             pso_type='Globalbest'
             print(" LOG: Running GlobalbestPSO algorithm with oh_strategy")
             oh_strategy={ "w":'exp_decay', "c1":'nonlin_mod',"c2":'lin_variation'}
             cost, pos=optimize(energy_min, iterations, oh_strategy, start_opts, end_opts)
-            energy_history(cost_history)
+            energy_history(cost_history,position_history)
                 
         
      
@@ -484,49 +494,33 @@ if(env_check()):
     opt_struct(pos)
     
 
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
     
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
 
 # In[ ]:
