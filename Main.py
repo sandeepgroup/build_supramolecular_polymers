@@ -1,17 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[34]:
+# In[4]:
 
-
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[13]:
-
-
-#!/usr/bin/env python
-# coding: utf-8
 
 import os.path
 import sys
@@ -58,8 +49,6 @@ input_param={}
 start_opts={}
 end_opts={}
 options={}
-cost_history=[]
-position_history=[]
 
 input_param["tx_lower"]=0.0
 input_param["tx_upper"]=3.0
@@ -175,6 +164,8 @@ oh_strategy = eval(input_param['oh_strategy'])
 label=input_param["label"]
 n_particles=input_param["nparticle_pso"]
 
+cost_history=[]
+position_history=[]
 
 if(dimensions==1):
     tx_upper=tx_lower=0
@@ -378,7 +369,7 @@ def energy_history(cost_history,position_history):
     header = ["Iteration_Number", "Best_cost_Energy", 'tx','ty','tz','twist']
     iter_num=0
     with open("Energy_position_history.xyz","w") as fp:
-        fp.writelines('{:>15}  '.format(head) for head in header) 
+        fp.writelines('{:>16}  '.format(head) for head in header) 
         fp.write("\n")
         for pos in position_history:
             position = " ".join(map(str, pos))
@@ -386,7 +377,7 @@ def energy_history(cost_history,position_history):
             iter_num=iter_num+1
             data = []
             data.extend((iter_num, en,position))
-            fp.writelines('{:>10}      '.format(values) for values in data)
+            fp.writelines('{:>14}      '.format(values) for values in data)
             fp.write("\n")
     fp.close()
        
@@ -521,6 +512,18 @@ if(env_check()):
 
 
     
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
