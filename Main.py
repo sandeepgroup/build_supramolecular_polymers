@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # coding: utf-8
 
 # In[4]:
@@ -197,7 +197,7 @@ bounds =(lb,ub)
 
 
 def env_check():
-    completedProc = subprocess.run('./check_env.sh')
+    completedProc = subprocess.run('check_env.sh')
     if(completedProc.returncode==1):
         print(bcolors.WARNING + " ERROR: dftb+ input file is not found" + bcolors.END)
         exit()
@@ -277,7 +277,7 @@ def count():
 def energy_cal(tx,ty,tz,twist):
         configuration_generate(tx,ty,tz,twist)
         try:
-            output = subprocess.check_output('./run_dftb_updated.sh generated_'+label+'_'+str(size)+'.xyz' ,shell=True)
+            output = subprocess.check_output('run_dftb_updated.sh generated_'+label+'_'+str(size)+'.xyz' ,shell=True)
         except subprocess.CalledProcessError as grepexc:     
             print(bcolors.WARNING +" ERROR: error code", grepexc.returncode, grepexc.output+ bcolors.END)
         if(re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))):
@@ -387,7 +387,7 @@ fp.close()
 
 def configuration_generate(tx,ty,tz,twist):
     tmpconfig='tmpconfig'
-    input_in="python3 orient.py "+ input_struct + " -p " + str(atom_1) +" "+ str(atom_2) +" " + str(atom_3) + " -tc	> " + tmpconfig +"0.xyz"
+    input_in="orient.py "+ input_struct + " -p " + str(atom_1) +" "+ str(atom_2) +" " + str(atom_3) + " -tc	> " + tmpconfig +"0.xyz"
     os.system(input_in)
 
     if(rotation_type==1):
@@ -395,16 +395,16 @@ def configuration_generate(tx,ty,tz,twist):
         orient = -1
         for i in range(1,size):
             rot = rot * orient
-            input_in="python3 orient.py "+ tmpconfig+str(i-1)+".xyz" + " -tz " + str(tz)  + " -rz " + str(rot) +"  > tmpconfig"+str(i)+".xyz"
+            input_in="orient.py "+ tmpconfig+str(i-1)+".xyz" + " -tz " + str(tz)  + " -rz " + str(rot) +"  > tmpconfig"+str(i)+".xyz"
             os.system(input_in)
 
     elif(rotation_type==2):
         for i in range(1,size):
-            input_in="python3 orient.py "+ tmpconfig+str(i-1)+".xyz" + " -tz " + str(tz) + " -tx " + str(tx)  + " -ty " + str(ty)   + " -rz " + str(twist) +"  > tmpconfig"+str(i)+".xyz"
+            input_in="orient.py "+ tmpconfig+str(i-1)+".xyz" + " -tz " + str(tz) + " -tx " + str(tx)  + " -ty " + str(ty)   + " -rz " + str(twist) +"  > tmpconfig"+str(i)+".xyz"
             os.system(input_in)
     else:
         for i in range(1,size):
-            input_in="python3 orient.py "+ tmpconfig+str(i-1)+".xyz" + " -tz " + str(tz) + " -tx " + str(tx)  + " -ty " + str(ty)   + " -rz " + str(twist) +"  > tmpconfig"+str(i)+".xyz"
+            input_in="orient.py "+ tmpconfig+str(i-1)+".xyz" + " -tz " + str(tz) + " -tx " + str(tx)  + " -ty " + str(ty)   + " -rz " + str(twist) +"  > tmpconfig"+str(i)+".xyz"
             os.system(input_in)
 
   #combining the files 
