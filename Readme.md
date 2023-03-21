@@ -15,3 +15,12 @@ ty = translation along y-axis <br />
 tz = translation along z-axis <br />
 twist = angle <br />
 size = oligomer size 
+
+**use the following command to initialize the environment 
+
+source init.sh 
+
+edit the 'init.sh' file to set the dir_source to correct path 
+**
+
+
