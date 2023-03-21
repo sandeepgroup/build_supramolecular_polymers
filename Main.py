@@ -83,7 +83,7 @@ input_param["label"]='supramolecule'
 
 atom_num=1
 #Reading input from the user 
-with open('user_input.user','r') as fp:
+with open('input.user','r') as fp:
     for line in fp:
         if not len(line.strip())==0 and not line.lstrip().startswith("#"):
             name,var = line.partition('=')[::2]
