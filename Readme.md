@@ -34,7 +34,7 @@ to apply the patch, use the following command:
 patch -p0 < run.patch 
 
 The above command applies the patch to a folder. Therefore, before applying the patch, move to the directory, where
-pyswarms is installed (should be outside the pyswarms directory). 
+pyswarms is installed (the command should be executed outside the pyswarms directory). 
 
 
 
