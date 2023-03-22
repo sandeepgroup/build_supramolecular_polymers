@@ -10,7 +10,7 @@
 #energies are in kJ/mol 
 function dftb_energy_cal {
 
-	source user_input.user
+	source input.user
 
 	export OMP_NUM_THREADS=${nproc_dftb}
 
