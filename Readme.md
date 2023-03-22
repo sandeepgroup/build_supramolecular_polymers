@@ -16,21 +16,21 @@ tz = translation along z-axis <br />
 twist = angle <br />
 size = oligomer size 
 
-## use the following command to initialize the environment 
+### use the following command to initialize the environment 
 
 source init.sh 
 
-edit the 'init.sh' file to set the dir_source to correct path 
+edit the 'init.sh' file to set the dir_source to correct path  
 
 
-## Apply patch file to pyswarms directory 
+### Apply patch file to pyswarms directory 
 
 #### for our group: 
-To create a patch file, use the following command: 
+To create a patch file, use the following command:  
 diff -ruN pyswarms/ pyswarms.new/ | sed '/Binary\ files\ /d'   > run.patch
 
 #### for users: 
-to apply the patch, use the following command: 
+to apply the patch, use the following command:  
 patch -p0 < run.patch 
 
 The above command applies the patch to a folder. Therefore, before applying the patch, move to the directory, where
