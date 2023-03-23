@@ -1,7 +1,0 @@
-#!/bin/bash 
-# enter key and value pairs without spaces like below (no spaces before and after '=' symbol) 
-
-np=2
-ip_energy=energy.json
-traj=split_traj_pdi_3.xyz
-

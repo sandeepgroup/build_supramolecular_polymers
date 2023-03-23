@@ -1,5 +1,0 @@
-# any line starting with '#' is ignored
-# and blank lines are also ignored 
-
-nconf_calc = 2
-prefix = ener-dftb
