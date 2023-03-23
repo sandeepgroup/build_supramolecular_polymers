@@ -18,9 +18,9 @@ size = oligomer size
 
 ### use the following command to initialize the environment 
 
-source init.sh 
+source set_initenv.sh  
 
-edit the 'init.sh' file to set the dir_source to correct path  
+edit the 'set_initenv.sh' file to set the dir_source to correct path  
 
 
 ### Apply patch file to pyswarms directory 
