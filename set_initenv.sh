@@ -31,16 +31,17 @@ fi
 
 if [ -n "${STACKGEN_SRC}" ]; then 
 	export PATH=${STACKGEN_SRC}:$PATH 
+	export PATH=${STACKGEN_SRC}/utils:$PATH 
 fi
 
 type stackgen_run > /dev/null  2>&1
 if [ $? -ne 0 ]; then
-	alias stackgen_run="python ${STACKGEN_SRC}/Main.py"
+	alias stackgen_run="python ${STACKGEN_SRC}/main.py"
 fi
 
 type stackgen_clean > /dev/null  2>&1
 if [ $? -ne 0 ]; then 
-	alias stackgen_clean="bash ${STACKGEN_SRC}/clean.sh"
+	alias stackgen_clean="bash ${STACKGEN_SRC}/utils/clean.sh"
 fi
 
 
