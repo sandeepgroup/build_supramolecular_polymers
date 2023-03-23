@@ -3,7 +3,7 @@
 # stackgen_run, stackgen_clean
 # 
 
-STACKGEN_SRC='/home/sandeep/build_supramolecular_polymers'
+STACKGEN_SRC='/home/sandeep/arunima/build_supramolecular_polymers'
 
 
 # check if STACKGEN source directory is set properly or not; 
@@ -36,7 +36,7 @@ fi
 
 type stackgen_run > /dev/null  2>&1
 if [ $? -ne 0 ]; then
-	alias stackgen_run="python ${STACKGEN_SRC}/main.py"
+	alias stackgen_run="python -u ${STACKGEN_SRC}/main.py"
 fi
 
 type stackgen_clean > /dev/null  2>&1
