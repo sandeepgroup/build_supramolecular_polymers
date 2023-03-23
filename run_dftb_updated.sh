@@ -1,11 +1,8 @@
 #!/bin/bash
-# uses jq and mapfile commands. Install them if not available
 
 # this script will check the presence of all input files needed and then 
 # check dftb+ calculation on a test system
 # go through the trajectory file and for each configuration, it calculates energy
-# and updates the energy.json file 
-# this script also works for restarting 
 
 #energies are in kJ/mol 
 function dftb_energy_cal {
@@ -31,11 +28,6 @@ function dftb_energy_cal {
 		echo $energy_val
 	else
 		echo " ERROR: Some issue with dftb+ calculation " 
-	#       echo "failed"
-	#       en=`awk '{print $2}' dftb.out | grep '[[:digit:]]' | tail -n 1`
-	#       en=`echo $en | awk -v x=$conv_factor '{printf "%0.5f\n",$1*x}'`
-	#       local energy_val=$(echo "$en" | bc -l)
-	#       echo $energy_val
    	fi
 	rm -f tmpinput1.xyz 
 	rm -f charges.bin
