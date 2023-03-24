@@ -298,6 +298,8 @@ def optimize(objective_func, maxiters, oh_strategy, start_opts, end_opts):
                 swarm, p=distance, k=neighbour
             )
 
+        cost_history.append(swarm.best_cost)
+        position_history.append(swarm.best_pos)
         print(
             " LOG: "
             + "Iteration "
