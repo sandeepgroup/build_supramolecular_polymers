@@ -625,10 +625,10 @@ if env_check():
     print(
        "\n LOG: "
        + " where "
-       + "   energy ="
+       + "   energy = "
        + str(cost)
        + "\n"
-       + "   order parameters ="
+       + "   order parameters = "
        + str(pos)
        )
     print(" LOG: successfully generated the final structure")
