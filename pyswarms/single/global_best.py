@@ -157,7 +157,7 @@ class GlobalBestPSO(SwarmOptimizer):
         self.name = __name__
 
     def optimize(
-        self, objective_func, iters, n_processes=None, verbose=True, **kwargs
+        self, objective_func, iters, n_processes=None, verbose=False, **kwargs
     ):
         """Optimize the swarm for a number of iterations
 
@@ -225,6 +225,21 @@ class GlobalBestPSO(SwarmOptimizer):
             )
 
             self._populate_history(hist)
+
+            print(
+            " LOG: "
+            + "Statistics at iteration "
+            + str(i+1)
+            + "/"
+            + str(iters)
+            + "\n"
+            + "   energy ="
+            + str(self.swarm.best_cost)
+            + "\n"
+            + "   order parameters ="
+            + str(self.swarm.best_pos)
+            )
+
             # Verify stop criteria based on the relative acceptable cost ftol
             relative_measure = self.ftol * (1 + np.abs(best_cost_yet_found))
             delta = (

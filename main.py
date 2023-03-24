@@ -15,21 +15,10 @@ from pyswarms.single.local_best import LocalBestPSO
 from pyswarms.backend.operators import compute_pbest, compute_objective_function
 from collections import deque
 
-
-class bcolors:
-    HEADER = "\033[92m"
-    BLUE = "\033[94m"
-    WARNING = "\033[91m"
-    BOLD = "\033[1m"
-    END = "\033[0m"
-
-
 # print header in the log file
 
 print(
-    bcolors.HEADER
-    + bcolors.BOLD
-    + r"""
+     r"""
 +-+-+-+-+-+ +-+-+-+-+-+-+-+-+-+ +-+-+-+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
            ____ _____  _    ____ _  ______ _____ _   _
           / ___|_   _|/ \  / ___| |/ / ___| ____| \ | |
@@ -39,7 +28,6 @@ print(
                  Stack generator for supramolecules
 +-+-+-+-+-+ +-+-+-+-+-+-+-+-+-+ +-+-+-+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 """
-    + bcolors.END
 )
 
 # set default values
@@ -210,9 +198,7 @@ elif dimensions == 4:
 
 else:
     print(
-        bcolors.WARNING
-        + "ERROR: Wrong value is given.Check user.input file"
-        + bcolors.END
+         "ERROR: Wrong value is given.Check user.input file"
     )
 
 bounds = (lb, ub)
@@ -221,32 +207,24 @@ bounds = (lb, ub)
 def env_check():
     completedProc = subprocess.run("check_env.sh")
     if completedProc.returncode == 1:
-        print(bcolors.WARNING + " ERROR: dftb+ input file is not found" + bcolors.END)
+        print(" ERROR: dftb+ input file is not found")
         exit()
     elif completedProc.returncode == 2:
         print(
-            bcolors.WARNING
-            + " ERROR: dftb+ executable not found on the path"
-            + bcolors.END
+            " ERROR: dftb+ executable not found on the path"
         )
         exit()
     elif completedProc.returncode == 3:
         print(
-            bcolors.WARNING
-            + " ERROR: dftb+ test run not successful. Check dftb+ input file"
-            + bcolors.END
+             " ERROR: dftb+ test run not successful. Check dftb+ input file"
         )
         print(
-            bcolors.WARNING
-            + " ERROR: check dftb+ parameters directory path"
-            + bcolors.END
+             " ERROR: check dftb+ parameters directory path"
         )
         print(
-            bcolors.WARNING
-            + " ERROR: note that the directory path should terminate with /"
-            + bcolors.END
+             " ERROR: note that the directory path should terminate with /"
         )
-        print(bcolors.WARNING + " ERROR: stop ... " + bcolors.END)
+        print(" ERROR: stop ... ")
         exit()
     else:
         return 1
@@ -286,7 +264,7 @@ def optimize(objective_func, maxiters, oh_strategy, start_opts, end_opts):
         swarm.options = opt.oh(
             opt.options, iternow=i, itermax=maxiters, end_opts=end_opts
         )
-        print("Iteration:", i, " Options: ", swarm.options)
+        print(" Log: Iteration:", i, " Options: ", swarm.options)
         swarm.current_cost = compute_objective_function(swarm, objective_func)
         swarm.pbest_pos, swarm.pbest_cost = compute_pbest(swarm)
 
@@ -300,17 +278,22 @@ def optimize(objective_func, maxiters, oh_strategy, start_opts, end_opts):
 
         cost_history.append(swarm.best_cost)
         position_history.append(swarm.best_pos)
+
         print(
             " LOG: "
-            + "Iteration "
+            + "Statistics at iteration "
             + str(i)
             + "/"
             + str(maxiters)
-            + "\t"
-            + "best_cost ="
+            + "\n"
+            + "   energy ="
             + str(swarm.best_cost)
             + "\n"
-        )
+            + "   order parameters ="
+            + str(swarm.best_pos)
+            + "\n"
+            )
+
         delta = np.abs(swarm.best_cost - best_cost_yet_found) < ftol
         if i < ftol_iter + 1:
             ftol_history.append(delta)
@@ -345,9 +328,9 @@ def energy_cal(tx, ty, tz, twist):
         )
     except subprocess.CalledProcessError as grepexc:
         print(
-            bcolors.WARNING + " ERROR: error code",
+            " ERROR: error code",
             grepexc.returncode,
-            grepexc.output + bcolors.END,
+            grepexc.output 
         )
     if re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip())):
         energy_val = float(
@@ -361,8 +344,7 @@ def energy_min(params):
 
     energy_value_list = []
     count()
-    if counter == 1:
-        print(" LOG: iteration,pso_particle,tx,ty,tz,twist,Energy")
+    print("\n LOG: iteration,pso_particle,tx,ty,tz,twist,Energy")
     x = 0
     if param_len == 1:
         for parm in range(len(params)):
@@ -419,7 +401,6 @@ def energy_min(params):
             )
         return energy_value_list
 
-
 def opt_struct(params):
     print(" Log: Generating the final structure")
     global param_len
@@ -448,7 +429,8 @@ def opt_struct(params):
 
 
 def energy_history(hcost, hpos):
-    print(" Log: Saving the best cost energy value for every itreation")
+    print("\n Log: code stopped due to either meeting convergence criteria or exceeding the max iterations ")
+    print("\n Log: saving the trajectory ")
     header = ["#iter", "energy", "tx", "ty", "tz", "twist"]
     with open("traj.out", "w") as fp:
         fp.writelines("{:>4}       ".format(head) for head in header)
@@ -581,7 +563,7 @@ if os.path.exists("traj.out"):
     while os.path.exists("#traj.out." + str(i) + "#"):
         i += 1
 
-    os.system("echo traj.out \#traj.out." + str(i) + "\#")
+    print(" LOG: traj.out renamed to #traj.out."+ str(i) + "#")
     os.system("cp traj.out \#traj.out." + str(i) + "\#")
 
 
@@ -639,6 +621,28 @@ if env_check():
             )
             energy_history(cost_history, position_history)
 
-    print(" LOG: the best cost and The best position returned by PSO")
-    print(" LOG: ", cost, pos)
     opt_struct(pos)
+    print(
+       "\n LOG: "
+       + " where "
+       + "   energy ="
+       + str(cost)
+       + "\n"
+       + "   order parameters ="
+       + str(pos)
+       )
+    print(" LOG: successfully generated the final structure")
+    print(" LOG: END")
+
+    print(
+          r"""
+  ____                 _   ____               _ 
+ / ___| ___   ___   __| | | __ ) _   _  ___  | |
+| |  _ / _ \ / _ \ / _` | |  _ \| | | |/ _ \ | |
+| |_| | (_) | (_) | (_| | | |_) | |_| |  __/ |_|
+ \____|\___/ \___/ \__,_| |____/ \__, |\___| (_)
+                                 |___/          
+     """
+     )
+
+
