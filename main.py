@@ -286,10 +286,10 @@ def optimize(objective_func, maxiters, oh_strategy, start_opts, end_opts):
             + "/"
             + str(maxiters)
             + "\n"
-            + "   energy ="
+            + "   energy = "
             + str(swarm.best_cost)
             + "\n"
-            + "   order parameters ="
+            + "   order parameters = "
             + str(swarm.best_pos)
             + "\n"
             )

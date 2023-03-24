@@ -3,7 +3,7 @@
 # stackgen_run, stackgen_clean
 # 
 
-STACKGEN_SRC='/home/sandeep/arunima/build_supramolecular_polymers'
+STACKGEN_SRC='/home/sandeep/build_supramolecular_polymers'
 
 
 # check if STACKGEN source directory is set properly or not; 

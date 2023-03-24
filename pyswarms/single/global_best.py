@@ -233,10 +233,10 @@ class GlobalBestPSO(SwarmOptimizer):
             + "/"
             + str(iters)
             + "\n"
-            + "   energy ="
+            + "   energy = "
             + str(self.swarm.best_cost)
             + "\n"
-            + "   order parameters ="
+            + "   order parameters = "
             + str(self.swarm.best_pos)
             )
 
