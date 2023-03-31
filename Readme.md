@@ -22,17 +22,19 @@ Steps to use the STACKGEN code:
 1. In the STACKGEN folder open the file 'set_initenv.sh' and edit the STACKGEN_SRC variable to insert the path of the STACKGEN folder.
 2. While staying in the STACKGEN directory run the patch file 'run.patch' using the command 'patch -p0 < run.patch'.
 3. Input the parameters in 'input.user' file present in generate_configuration folder in the below format:
-           filename = input.xyz
-           label = pdi
-           atom1 = 7
-           atom2 = 45
-           atom3 = 16
-           tx = 1.0
-           ty = 0.0
-           tz = 3.5
-           twist = 30
-           size = 3
-    These are basic parameters. Advanced parameters can also be inserted. Details of advanced parameters are given in the user manual.
+
+filename = input.xyz
+label = pdi
+atom1 = 7
+atom2 = 45
+atom3 = 16
+tx = 1.0
+ty = 0.0
+tz = 3.5
+twist = 30
+size = 3
+
+These are basic parameters. Advanced parameters can also be inserted. Details of advanced parameters are given in the user manual.
 
 4. 
 
