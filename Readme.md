@@ -44,7 +44,9 @@ Steps to use the STACKGEN code:
 4. Finally the code can be run using the following command:<br/>
 
            python3 main.py > log.txt
-
+   
+   The above line will run the main.py file, generate the optimal configuration (in .xyz format) and stores all the results in the log.txt file (the file      will be in the stackgen folder). The generated configuration will be created in a file named as “generated_{label}_{stack_size}.xyz”.
+   
 Use this code to generate a configuration for the given input parameters such <br />
 tx = translation along x-axis <br />
 ty = translation along y-axis <br />
