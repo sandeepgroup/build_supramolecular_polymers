@@ -14,28 +14,36 @@ STACKGEN is intended to find the optimal structure of different molecules using 
 Prerequisites:
 
 1. Python 3 or above.
-2. Install 'pyswarms' and 'natsort' libraries using 'pip install pyswarms/natsort' command.
+2. Install 'pyswarms' and 'natsort' libraries using the below command:<br/>
+           
+           pip install pyswarms natsort
+           
 3. Install dftb+ package from the link : https://dftbplus.org/download.
 
 Steps to use the STACKGEN code:
 
 1. In the STACKGEN folder open the file 'set_initenv.sh' and edit the STACKGEN_SRC variable to insert the path of the STACKGEN folder.
-2. While staying in the STACKGEN directory run the patch file 'run.patch' using the command 'patch -p0 < run.patch'.
+2. While staying in the STACKGEN directory in the command prompt run the patch file 'run.patch' using the command<br/>
+           
+           patch -p0 < run.patch
 3. Input the parameters in 'input.user' file present in generate_configuration folder in the below format:<br/>
 
-           filename = input.xyz<br/>
-           label = pdi<br/>
-           atom1 = 7<br/>
-           atom2 = 45<br/>
-           atom3 = 16<br/>
-           tx = 1.0<br/>
-           ty = 0.0<br/>
-           tz = 3.5<br/>
-           twist = 30<br/>
-           size = 3<br/>
+           filename = input.xyz
+           label = pdi
+           atom1 = 7
+           atom2 = 45
+           atom3 = 16
+           tx = 1.0
+           ty = 0.0
+           tz = 3.5
+           twist = 30
+           size = 3
 
     These are basic parameters. Advanced parameters can also be inserted. Details of advanced parameters are given in the user manual.
+    
+4. Finally the code can be run using the following command:<br/>
 
+           python3 main.py > log.txt
 
 Use this code to generate a configuration for the given input parameters such <br />
 tx = translation along x-axis <br />
