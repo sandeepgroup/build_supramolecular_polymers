@@ -23,20 +23,18 @@ Steps to use the STACKGEN code:
 2. While staying in the STACKGEN directory run the patch file 'run.patch' using the command 'patch -p0 < run.patch'.
 3. Input the parameters in 'input.user' file present in generate_configuration folder in the below format:<br/>
 
-filename = input.xyz<br/>
-label = pdi<br/>
-atom1 = 7<br/>
-atom2 = 45<br/>
-atom3 = 16<br/>
-tx = 1.0<br/>
-ty = 0.0<br/>
-tz = 3.5<br/>
-twist = 30<br/>
-size = 3<br/>
+           filename = input.xyz<br/>
+           label = pdi<br/>
+           atom1 = 7<br/>
+           atom2 = 45<br/>
+           atom3 = 16<br/>
+           tx = 1.0<br/>
+           ty = 0.0<br/>
+           tz = 3.5<br/>
+           twist = 30<br/>
+           size = 3<br/>
 
-These are basic parameters. Advanced parameters can also be inserted. Details of advanced parameters are given in the user manual.
-
-4. 
+    These are basic parameters. Advanced parameters can also be inserted. Details of advanced parameters are given in the user manual.
 
 
 Use this code to generate a configuration for the given input parameters such <br />
