@@ -47,34 +47,3 @@ Steps to use the STACKGEN code:
    
    The above line will run the main.py file, generate the optimal configuration (in .xyz format) and stores all the results in the log.txt file (the file      will be in the stackgen folder). The generated configuration will be created in a file named as “generated_{label}_{stack_size}.xyz”.
    
-Use this code to generate a configuration for the given input parameters such <br />
-tx = translation along x-axis <br />
-ty = translation along y-axis <br />
-tz = translation along z-axis <br />
-twist = angle <br />
-size = oligomer size 
-
-### use the following command to initialize the environment 
-
-source set_initenv.sh  
-
-edit the 'set_initenv.sh' file to set the dir_source to correct path  
-
-
-### Apply patch file to pyswarms directory 
-
-#### for our group: 
-To create a patch file, use the following command:  
-diff -ruN pyswarms/ pyswarms.new/ | sed '/Binary\ files\ /d'   > run.patch
-
-#### for users: 
-to apply the patch, use the following command:  
-patch -p0 < run.patch 
-
-The above command applies the patch to a folder. Therefore, before applying the patch, move to the directory, where
-pyswarms is installed (the command should be executed outside the pyswarms directory). 
-
-
-
-
-
