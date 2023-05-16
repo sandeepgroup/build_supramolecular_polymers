@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
 #!/usr/bin/env python3
 # coding: utf-8
 
@@ -162,7 +168,7 @@ n_particles = input_param["nparticle_pso"]
 
 cost_history = []
 position_history = []
-
+swarm_cost_history=[]
 if dimensions == 1:
     tx_upper = tx_lower = 0
     ty_upper = ty_lower = 0
@@ -231,7 +237,7 @@ def env_check():
 
 
 def optimize(objective_func, maxiters, oh_strategy, start_opts, end_opts):
-    global pso_type, neighbour, distance, n_particles, bounds, dimensions, cost_history, position_history
+    global pso_type, neighbour, distance, n_particles, bounds, dimensions, cost_history, position_history,swarm_cost_history
 
     if pso_type == "Globalbest":
         opt = ps.single.GlobalBestPSO(
@@ -266,8 +272,9 @@ def optimize(objective_func, maxiters, oh_strategy, start_opts, end_opts):
         )
         print(" Log: Iteration:", i, " Options: ", swarm.options)
         swarm.current_cost = compute_objective_function(swarm, objective_func)
+       
         swarm.pbest_pos, swarm.pbest_cost = compute_pbest(swarm)
-
+    
         best_cost_yet_found = swarm.best_cost
         if pso_type == "Globalbest":
             swarm.best_pos, swarm.best_cost = opt.top.compute_gbest(swarm)
@@ -293,14 +300,15 @@ def optimize(objective_func, maxiters, oh_strategy, start_opts, end_opts):
             + str(swarm.best_pos)
             + "\n"
             )
-
         delta = np.abs(swarm.best_cost - best_cost_yet_found) < ftol
+       
         if i < ftol_iter + 1:
             ftol_history.append(delta)
         else:
             ftol_history.append(delta)
             if all(ftol_history):
                 break
+         
 
         swarm.velocity = opt.top.compute_velocity(
             swarm, opt.velocity_clamp, opt.vh, opt.bounds
@@ -340,8 +348,7 @@ def energy_cal(tx, ty, tz, twist):
 
 
 def energy_min(params):
-    global param_len
-
+    global param_len,swarm_cost_history
     energy_value_list = []
     count()
     print("\n LOG: iteration,pso_particle,tx,ty,tz,twist,Energy")
@@ -358,6 +365,7 @@ def energy_min(params):
                 " LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f"
                 % (counter, x, tx, ty, tz, twist, energy_val)
             )
+            swarm_cost_history.append([counter,x,tx,ty,tz,twist,energy_val])
         return energy_value_list
     elif param_len == 2:
         for parm in range(len(params)):
@@ -371,6 +379,7 @@ def energy_min(params):
                 " LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f"
                 % (counter, x, tx, ty, tz, twist, energy_val)
             )
+            swarm_cost_history.append([counter,x,tx,ty,tz,twist,energy_val])
         return energy_value_list
     elif param_len == 3:
         for parm in range(len(params)):
@@ -385,6 +394,7 @@ def energy_min(params):
                 " LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f"
                 % (counter, x, tx, ty, tz, twist, energy_val)
             )
+            swarm_cost_history.append([counter,x,tx,ty,tz,twist,energy_val])
         return energy_value_list
     elif param_len == 4:
         for parm in range(len(params)):
@@ -399,6 +409,7 @@ def energy_min(params):
                 " LOG: %4d %3d %0.2f %0.2f %0.2f %0.2f %0.6f"
                 % (counter, x, tx, ty, tz, twist, energy_val)
             )
+            swarm_cost_history.append([counter,x,tx,ty,tz,twist,energy_val])
         return energy_value_list
 
 def opt_struct(params):
@@ -437,6 +448,16 @@ def energy_history(hcost, hpos):
         fp.write("\n")
         for iter_num in range(len(hcost)):
             pos = list(hpos[iter_num])
+            if(len(pos)==2):
+            	pos.insert(0, 0)
+            	pos.insert(0, 0)
+            if(len(pos)==1):
+            	pos.insert(0, 0)
+            	pos.insert(0, 0)
+            	
+            if(len(pos)==3):
+            	pos.insert(0, 0)
+            
             en = hcost[iter_num]
             fp.writelines("{0}      ".format(iter_num + 1))
             fp.writelines("{0:.3f}      ".format(en))
@@ -446,6 +467,23 @@ def energy_history(hcost, hpos):
 
 
 fp.close()
+
+def swarm_history(swarm_cost_history):
+    print("\n Log: saving the trajectory ")
+    header = ["iter", "Particle_Number","tx","ty","tz","twist","Fitness_Value"]
+    with open("swarm_traj.out", "w") as fp:
+        fp.writelines("{:>4}       ".format(head) for head in header)
+        fp.write("\n")
+        for cost in swarm_cost_history:
+            fp.writelines("{:.5f}      ".format(values) for values in cost)
+            fp.write("\n")
+    fp.close()
+
+
+
+
+
+
 # re-orient the given configuration so that atom_1-atom_2 is along x-axis and
 # the plane normal is along z-axis
 
@@ -546,7 +584,9 @@ def configuration_generate(tx, ty, tz, twist):
                 fp.readline()
                 fp.readline()
                 for atoms in range(int(natom)):
+         	     
                     line = fp.readline().split()
+                    
                     f.write("%s " % (line[0]) + " ")
                     for i in range(1, len(line)):
                         f.write("%-7.3f" % (float(line[i])) + " ")
@@ -585,6 +625,7 @@ if env_check():
             )
             cost, pos = optimizer.optimize(energy_min, iterations)
             energy_history(optimizer.cost_history, optimizer.bpos_history)
+            swarm_history(swarm_cost_history)
 
         elif oh_strategy == True:
             print(" LOG: Running LocalbestPSO algorithm with oh_strategy")
@@ -596,6 +637,7 @@ if env_check():
                 energy_min, iterations, oh_strategy, start_opts, end_opts
             )
             energy_history(cost_history, position_history)
+            swarm_history(swarm_cost_history)
 
     elif pso_type == "Globalbest":
         if oh_strategy == False:
@@ -611,6 +653,7 @@ if env_check():
             )
             cost, pos = optimizer.optimize(energy_min, iterations)
             energy_history(optimizer.cost_history, optimizer.bpos_history)
+            swarm_history(swarm_cost_history)
 
         elif oh_strategy == True:
             pso_type = "Globalbest"
@@ -620,6 +663,7 @@ if env_check():
                 energy_min, iterations, oh_strategy, start_opts, end_opts
             )
             energy_history(cost_history, position_history)
+            swarm_history(swarm_cost_history)
 
     opt_struct(pos)
     print(
