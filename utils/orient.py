@@ -193,9 +193,13 @@ def read_xyz(filename):
     line_counter=0
     with open(filename, "r") as f:
         line = f.readline().strip()
-        natoms= int(line)    
+        natoms= int(line)
+        
         while line != "" and line_counter != natoms:
+            #natoms = int(line)
             comment = f.readline().rstrip()
+            
+
             names = []
             coords = []
             extras = []
