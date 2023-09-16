@@ -190,19 +190,19 @@ class Geometry(object):
 def read_xyz(filename):
     '''reads xyz file and returns Geometry object'''
     out = []
-
+    line_counter=0
     with open(filename, "r") as f:
-        line = f.readline()
-        while line != "":
-            natoms = int(line)
+        line = f.readline().strip()
+        natoms= int(line)    
+        while line != "" and line_counter != natoms:
             comment = f.readline().rstrip()
-
             names = []
             coords = []
             extras = []
 
             for i in range(natoms):
                 line = f.readline()
+                line_counter+=1
                 data = line.split()
                 name, x, y, z = data[0:4]
                 extra = data[4:]
@@ -211,10 +211,11 @@ def read_xyz(filename):
                 coords.append( [float(x), float(y), float(z)] )
                 if extra:
                     extras.append(extra)
-
+		 
             out.append(Geometry(names, np.array(coords), comment=comment, extras=extras))
 
             line = f.readline()
+       
 
     return out
 
