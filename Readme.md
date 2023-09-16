@@ -24,9 +24,11 @@ Steps to use the StackGen:
 
 1. In the StackGen folder, edit the <tt>STACKGEN_SRC</tt> variable in the <tt>set_initenv.sh</tt> file to include the path of the StackGen folder as follows: <br/>
       STACKGEN_SRC = ’.../path to the folder containing main.py file/’
-2. Update the path for DFTB parameters in the <tt>dftb_in.hsd</tt> file. Use the file in <tt>examples</tt> as a 
-   starting point for creating the dftb input file
-3. Enter the parameter values in the <tt>input.user</tt> file present in <tt>generate_configuration</tt> folder using      the below format: <br/>
+2. Download the DFTB+ software package and either update the <tt>.bashrc</tt> file by adding the path of
+  DFTB+ as an environment variable or add it to the current shell temporarily.
+3. Update the path for DFTB parameters in the <tt>dftb_in.hsd</tt> file. Use the file in <tt>examples</tt> as a 
+   starting point for creating the dftb input file.
+4. Enter the parameter values in the <tt>input.user</tt> file present in <tt>generate_configuration</tt> folder using      the below format: <br/>
        tx_lower=0.0 <br/>
        tx_upper=2.0 <br/>
        ty_lower=0.0 <br/>
