@@ -8,7 +8,7 @@
                  Stack generator for supramolecules
 +-+-+-+-+-+ +-+-+-+-+-+-+-+-+-+ +-+-+-+ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 </pre>
-StackGen is a user-friendly open-source framework capable of generating energy-optimized one-dimensional supramolecular stack structures with minimal computational cost. StackGen employs PSO and a semiempirical quantum mechanical approach method to identify stable one-dimensional stack structures from a wide array of potential stack configurations resulting from the translation and twisting of neighboring molecules along all three directions. These low-energy configurations can be used as the initial structures for quantum mechanical and molecular simulations. 
+StackGen is a user-friendly open-source framework capable of generating energy-optimized one-dimensional supramolecular stack structures with minimal computational cost. StackGen employs PSO and a semiempirical quantum mechanical approach method to identify stable one-dimensional stack structures from a wide array of potential stack configurations resulting from the translation and twisting of neighboring molecules along all three directions. These low-energy configurations can be used as the initial structures for quantum mechanical calculations and molecular simulations. 
 
 Prerequisites:
 
