@@ -1,12 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
-
-
-#!/usr/bin/env python3
-# coding: utf-8
-
 import os.path
 import sys
 import subprocess
