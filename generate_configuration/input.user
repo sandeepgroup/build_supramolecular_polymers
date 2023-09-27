@@ -1,5 +1,4 @@
-# any line starting with '#' is ignored
-# and blank lines are also ignored 
+# any line starting with '#' or white space is ignored
 
 filename = input.xyz
 label = pdi

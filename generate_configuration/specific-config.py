@@ -9,11 +9,6 @@ import glob
 import re
 from natsort import natsorted
 
-from ase.calculators.dftb import Dftb
-from ase.io import write
-from ase.build import molecule
-from ase import Atoms, Atom
-
 # read input.user file and store the data as dictionary 
 #default values
 
