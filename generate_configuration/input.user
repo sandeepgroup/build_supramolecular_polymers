@@ -1,6 +1,6 @@
 # any line starting with '#' or white space is ignored
 
-    tx_lower=0.0
+tx_lower=0.0
 tx_upper=2.0
 ty_lower=0.0
 ty_upper=2.0
