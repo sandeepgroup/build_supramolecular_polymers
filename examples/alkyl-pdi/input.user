@@ -1,0 +1,36 @@
+#!/bin/bash 
+#rot_type has three options - 0:rotation about center, 1:zigzag conformation, 2:user defined center of rotation
+#PSO_type has two options-Globalbest and Localbest
+#oh_strategy has two options-True:calculation will be done with oh_strategy, False:default calculation.
+tx_lower=0.0
+tx_upper=0.0
+ty_lower=0.0
+ty_upper=0.0
+tz_lower=3.4
+tz_upper=3.5
+twist_lower=10.0
+twist_upper=30.0
+dimension=2
+rot_type=1
+atoms=4,24,27
+input_struct=alkyl-pdi.xyz
+stack_size=2
+pso_type=Globalbest
+nparticle_pso=15
+c1=0.5
+c2=0.3
+w=0.7
+c1_start=0.7
+c1_end=0.1
+c2_start=1.5
+c2_end=2.0
+w_start=0.7
+w_end=0.4
+k=6
+p=2
+oh_strategy=False
+maxiterations=200
+label=supramo
+ftol=1
+ftol_iter=10
+nproc_dftb=2
