@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
+#!/usr/bin/env python3
+# coding: utf-8
 
 import os.path
 import sys
@@ -42,9 +49,9 @@ input_param["tx_lower"] = 0.0
 input_param["tx_upper"] = 3.0
 input_param["ty_lower"] = 0.0
 input_param["ty_upper"] = 3.0
-input_param["tz_lower"] = 3.3
-input_param["tz_upper"] = 3.7
-input_param["twist_lower"] = 0.0
+input_param["tz_lower"] = 3.4
+input_param["tz_upper"] = 3.6
+input_param["twist_lower"] = 10.0
 input_param["twist_upper"] = 50.0
 input_param["rot_type"] = 0
 input_param["stack_size"] = 3
@@ -435,9 +442,9 @@ def opt_struct(params):
 def energy_history(hcost, hpos):
     print("\n Log: code stopped due to either meeting convergence criteria or exceeding the max iterations ")
     print("\n Log: saving the trajectory ")
-    header = ["#iter", "energy", "tx", "ty", "tz", "twist"]
+    header = ["#iter", "tx", "ty", "tz", "twist","energy"]
     with open("traj.out", "w") as fp:
-        fp.writelines("{:>4}       ".format(head) for head in header)
+        fp.writelines("{:>4}	   ".format(head) for head in header)
         fp.write("\n")
         for iter_num in range(len(hcost)):
             pos = list(hpos[iter_num])
@@ -452,9 +459,9 @@ def energy_history(hcost, hpos):
             	pos.insert(0, 0)
             
             en = hcost[iter_num]
-            fp.writelines("{0}      ".format(iter_num + 1))
-            fp.writelines("{0:.3f}      ".format(en))
-            fp.writelines("{:.3f}      ".format(x) for x in pos)
+            fp.writelines("{0}	   ".format(iter_num + 1))
+            fp.writelines("{:.3f}	   ".format(x) for x in pos)
+            fp.writelines("{0:.3f}	  ".format(en))
             fp.write("\n")
     fp.close()
 
@@ -463,12 +470,13 @@ fp.close()
 
 def swarm_history(swarm_cost_history):
     print("\n Log: saving the trajectory ")
-    header = ["iter", "Particle_Number","tx","ty","tz","twist","Fitness_Value"]
+    header = ["#iter", "#Particle","tx","ty","tz","twist","energy"]
     with open("swarm_traj.out", "w") as fp:
-        fp.writelines("{:>4}       ".format(head) for head in header)
+        fp.writelines("{:>4}	     ".format(head) for head in header)
         fp.write("\n")
+        
         for cost in swarm_cost_history:
-            fp.writelines("{:.5f}      ".format(values) for values in cost)
+            fp.writelines("{:.4f}	      ".format(values) for values in cost)
             fp.write("\n")
     fp.close()
 
