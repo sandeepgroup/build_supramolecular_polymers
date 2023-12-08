@@ -2,11 +2,9 @@
 <h2>StackGen example problems</h2>
 
 There are 14 sub-directories present here. Each sub-directory contains a sample problem you can run with StackGen. 
-Each problem has a user input script (input.user), DFTB+ input file (dftb_in.hsd), PSO trajectories files (swarm_traj.out, traj.out)
-as output, optimized dimer structure (generated_supramo_2.xyz) and three image files of monomer configuration, side view, and top view of 
-energy-optimized dimer structure, respectively.
+Each sub-directory has a user input script (input.user), monomer input configuration, DFTB+ input file (dftb_in.hsd), PSO trajectories files (swarm_traj.out, traj.out), optimized dimer structure (generated_supramo_2.xyz) and three image files of monomer configuration, side view, and top view of energy-optimized dimer structure, respectively.
 
-The following molecules are considered sample problems. The input and output files are present in their corresponding sub-directories:
+The following molecules are considered as sample problems. The input and output files are present in their corresponding sub-directories:
 <ol>
   <li>BTA_68b</li>
   <li>BTA_66d </li>
@@ -32,10 +30,10 @@ cd BTA_66d </br>
 source ../../path_to_set_initenv.sh file </br>
 stackgen_run  </br>
 
-Running the simulation produces two PSO trajectory files, namely traj.out and swarm_traj.out. traj.out captures the progress of the best fitness value found by the entire swarm at each iteration. Each line in traj.out corresponds to an iteration, detailing the best fitness value and the order parameter values (tx, ty, tz, twist) at that iteration. Whereas swarm traj.out records the complete trajectory of the PSO process. It documents the fitness value and the position of swarm particles for each iteration.
+The simulation produces two PSO trajectory files, namely traj.out and swarm_traj.out. traj.out captures the progress of the best fitness value found by the entire swarm at each iteration. Each line in traj.out corresponds to an iteration, detailing the best fitness value and the order parameter values (tx, ty, tz, twist) at that iteration. Whereas swarm traj.out records the complete trajectory of the PSO process. It documents the fitness value and the position of swarm particles for each iteration.
 The energy-optimized dimer structure can be visualized using VMD.
 
-<i>StackGen</i> generated order parameters of the energy-minimized configuration of these sample problems are depicted below:
+StackGen-generated order parameters of the energy-minimized configuration of these sample problems are depicted below:
 <table>
  <tr>
     <th>Molecule</th>
