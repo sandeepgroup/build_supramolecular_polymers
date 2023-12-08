@@ -77,10 +77,10 @@ StackGen-generated order parameters of the energy-minimized configuration of the
    <tr>
     <td>PDI_20</td>
     <td>4</td>
-    <td> 3.491	</td>
-    <td> 0.357</td>
-    <td>3.580</td>
-    <td>0.003</td>
+    <td> 3.489	</td>
+    <td> 0.390</td>
+    <td>3.589</td>
+    <td>0.005</td>
   </tr>
   <tr>
     <td>PDI_92</td>
