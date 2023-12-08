@@ -1,4 +1,4 @@
-# Energy_calculation
+
 <h2>StackGen example problems</h2>
 
 There are 14 sub-directories present here. Each sub-directory contains a sample problem you can run with StackGen. 
