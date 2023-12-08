@@ -63,7 +63,7 @@ StackGen-generated order parameters of the energy-minimized configuration of the
     <td>4</td>
     <td>0.184</td>
     <td>0.044</td>
-    <td>3.291/td>
+    <td>3.291</td>
     <td>-31.013<</td>
   </tr>
   <tr>
