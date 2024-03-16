@@ -70,7 +70,7 @@ Follow these steps to use StackGen:
 
 7. To clean the temporary files, use the following command:
 	```
-       stackgen_clean 
+ 	stackgen_clean 
 	```
 
 
