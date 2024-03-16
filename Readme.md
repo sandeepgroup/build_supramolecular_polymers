@@ -57,12 +57,18 @@ Follow these steps to use StackGen:
 
   These are basic parameters. Advanced parameters can also be inserted. Details of advanced parameters are given in the user manual.
 
-5. Execute the code using the following command:
+5. Source the `set_initenv.sh` file using the following command:
+  	 ```
+	source set_initenv.sh 
+	```
+
+
+6. Execute the code using the following command:
 	```
 	stackgen_run > out
 	```
 
-6. To clean the temporary files, use the following command:
+7. To clean the temporary files, use the following command:
 	```
        stackgen_clean 
 	```
