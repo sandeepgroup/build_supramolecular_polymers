@@ -19,10 +19,12 @@ StackGen is a user-friendly open-source framework capable of generating energy-o
 Before using StackGen, ensure you have the following prerequisites installed:
 
 1. Python 3 or above
-2. `natsort` module for Python
+2. `natsort`, `ase` and `xtb` module for Python
    - You can install it using the following command:
      ```
      pip install natsort
+     pip install ase
+     pip install xtb
      ```
 
 3. Install the Quantum mechanical simulation software [DFTB+](https://dftbplus.org/download).
@@ -38,7 +40,7 @@ Follow these steps to use StackGen:
 
 2. Download the DFTB+ software package and either update the `.bashrc` file by adding the path of DFTB+ as an environment variable or add it to the current shell temporarily.
 
-3. Update the path for DFTB parameters in the `dftb_in.hsd` file. You can use the file in the `examples` folder as a starting point for creating the DFTB input file.
+3. Update the path for DFTB parameters in the `set_initenv.sh` file. 
 
 4. Enter the parameter values in the `input.user` file present in the `examples` folder using the following format:
 	```
@@ -49,13 +51,13 @@ Follow these steps to use StackGen:
        tz_upper=3.8 
        twist_lower=120 
        twist_upper=180 
-       input_struct=input.xyz 
+       input_struct=crest_conformer_10.xyz
        atoms=7,45,16 
-       stack_size=3 
+       stack_size=3
+       energy_calculator=dftb+
        label=pdi 
 	```
-
-  These are basic parameters. Advanced parameters can also be inserted. Details of advanced parameters are given in the user manual.
+Here, crest_conformer_10.xyz is the input file which contains coordinates of conformers. `energy_calculator` parameter has two option: dftb+ and xtb.
 
 5. Source the `set_initenv.sh` file using the following command:
   	 ```
@@ -68,12 +70,8 @@ Follow these steps to use StackGen:
 	stackgen_run > out
 	```
 
-7. To clean the temporary files, use the following command:
-	```
- 	stackgen_clean 
-	```
+  
 
-
-The optimized stacked configuration will be saved in a file named `generated_{label}_{stack_size}.xyz`, which can be visualized using software such as VMD (Visual Molecular Dynamics).
+The optimized stacked configuration for each of the conformer will be saved in a file named `generated_{label}_{stack_size}_conformer_{conformer_number}.xyz`. Individual traj file and swarm_traj file will be generated for each of the conformer. `stacked_conformers.xyz` will contain the coordinates of all of these optimized stacked configurations. 
 
 
