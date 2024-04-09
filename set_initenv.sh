@@ -3,7 +3,7 @@
 # stackgen_run, stackgen_clean
 # 
 
-STACKGEN_SRC='/home/sandeep/build_supramolecular_polymers'
+STACKGEN_SRC='/home/arunima/stackgen_updated'
 
 
 # check if STACKGEN source directory is set properly or not; 
@@ -15,18 +15,8 @@ if [ ! -f "${STACKGEN_SRC}/main.py" ]; then
 	return
 fi 
 
-
-# check dftb+ executable in the path, if it is not present, exit with error
-
-type dftb+ > /dev/null 2>&1
-
-if [ $? -ne 0 ]; then 
-	echo 'dftb+ executable not found on the path'
-	echo 'to run the calculation, dftb+ should be on the path'
-	echo 'exiting ... '
-	return
-fi
-
+# set DFTB_PREFIX variable to the directory where the Slater-Koster files are kept
+export DFTB_PREFIX="/home/sandeep/software/dftb-input/3ob-3-1/"
 # setting up the environment 
 
 if [ -n "${STACKGEN_SRC}" ]; then 

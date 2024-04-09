@@ -12,6 +12,7 @@ import sys
 import subprocess
 import os
 import re
+import glob
 import pyswarms as ps
 import numpy as np
 import time
@@ -19,6 +20,9 @@ from natsort import natsorted
 from pyswarms.single.global_best import GlobalBestPSO
 from pyswarms.single.local_best import LocalBestPSO
 from pyswarms.backend.operators import compute_pbest, compute_objective_function
+from utils.dftb_xtb_energy_calculator import energy_calculation
+from utils.check_env import ExecutableChecker
+from utils.clean import clean_up_files
 from collections import deque
 
 # print header in the log file
@@ -76,7 +80,7 @@ input_param["k"] = 6
 input_param["p"] = 2
 input_param["label"] = "supramolecule"
 input_param["oh_strategy"] = "False"
-
+input_param["energy_calculator"]="dftb+"
 atom_num = 1
 # Reading input from the user
 with open("input.user", "r") as fp:
@@ -124,8 +128,7 @@ for key in input_param:
     print(" LOG: " + key + " = " + str(input_param[key]))
 
 
-global atom_1, atom_2, atom_3, input_struct, pso_type, nproc, rotation_type, neighbour, distance, n_particles, bounds, dimensions, param_len, cost_history
-
+global atom_1, atom_2, atom_3, input_struct, pso_type, nproc, rotation_type, neighbour, distance, n_particles, bounds, dimensions, param_len, cost_history,cost
 # renaming the variables for simplicity
 
 tx_upper = input_param["tx_upper"]
@@ -143,6 +146,7 @@ atom_3 = input_param["atom_3"]
 input_struct = input_param["input_struct"]
 rotation_type = input_param["rot_type"]
 size = input_param["stack_size"]
+energy_calculator = input_param["energy_calculator"]
 pso_type = input_param["pso_type"]
 ftol = input_param["ftol"]
 ftol_iter = input_param["ftol_iter"]
@@ -165,10 +169,13 @@ distance = input_param["p"]
 oh_strategy = eval(input_param["oh_strategy"])
 label = input_param["label"]
 n_particles = input_param["nparticle_pso"]
-
+cost=0
 cost_history = []
 position_history = []
 swarm_cost_history=[]
+
+#conformer_stack_energies=[]
+
 if dimensions == 1:
     tx_upper = tx_lower = 0
     ty_upper = ty_lower = 0
@@ -204,23 +211,26 @@ elif dimensions == 4:
 
 else:
     print(
-         "ERROR: Wrong value is given.Check user.input file"
+         "ERROR: Wrong value is given.Check input.user file"
     )
 
 bounds = (lb, ub)
 
 
 def env_check():
-    completedProc = subprocess.run("check_env.sh")
-    if completedProc.returncode == 1:
-        print(" ERROR: dftb+ input file is not found")
-        exit()
-    elif completedProc.returncode == 2:
+    env_checker = ExecutableChecker(energy_calculator)
+    returncode = env_checker.environment_check()
+    if returncode == 1:
         print(
-            " ERROR: dftb+ executable not found on the path"
+	     " ERROR: dftb+ executable not found on the path."
         )
         exit()
-    elif completedProc.returncode == 3:
+    
+    elif returncode == 2:
+        print(
+             " ERROR: dftb+ parameters directory path is not found on the path"
+        )
+    elif returncode == 3:
         print(
              " ERROR: dftb+ test run not successful. Check dftb+ input file"
         )
@@ -319,7 +329,7 @@ def optimize(objective_func, maxiters, oh_strategy, start_opts, end_opts):
     return final_best_cost, final_best_pos
 
 
-counter = 0
+
 
 
 def count():
@@ -328,22 +338,20 @@ def count():
 
 
 def energy_cal(tx, ty, tz, twist):
-    configuration_generate(tx, ty, tz, twist)
+    output_struct_file = configuration_generate(tx, ty, tz, twist)
     try:
-        output = subprocess.check_output(
-            "run_dftb_updated.sh generated_" + label + "_" + str(size) + ".xyz",
-            shell=True,
-        )
+        en_cal = energy_calculation(output_struct_file,energy_calculator)
+        if(energy_calculator.lower() == 'dftb+'):
+          energy_val = en_cal.dftb_energy_calculation()
+        elif(energy_calculator.lower() == 'xtb'):
+          energy_val = en_cal.xtb_energy_calculation()
     except subprocess.CalledProcessError as grepexc:
         print(
             " ERROR: error code",
             grepexc.returncode,
             grepexc.output 
         )
-    if re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip())):
-        energy_val = float(
-            re.findall(r"[-+]?(?:\d*\.\d+|[eE][+-]\d+)", str(output.strip()))[0]
-        )
+    
     return energy_val
 
 
@@ -412,38 +420,41 @@ def energy_min(params):
             swarm_cost_history.append([counter,x,tx,ty,tz,twist,energy_val])
         return energy_value_list
 
-def opt_struct(params):
+def opt_struct(cost,params):
     print(" Log: Generating the final structure")
+    final_struct_file = "stacked_conformers.xyz"
     global param_len
     if param_len == 1:
         tx = ty = 0
         tz = 3.5
         twist = params[0]
-        configuration_generate(tx, ty, tz, twist)
+        configuration_generate(tx, ty, tz, twist,cost,final_struct_file)
     elif param_len == 2:
         tx = ty = 0
         tz = params[0]
         twist = params[1]
-        configuration_generate(tx, ty, tz, twist)
+        configuration_generate(tx, ty, tz, twist,cost,final_struct_file)
     elif param_len == 3:
         ty = 0
         tx = params[0]
         tz = params[1]
         twist = params[2]
-        configuration_generate(tx, ty, tz, twist)
+        configuration_generate(tx, ty, tz, twist,cost,final_struct_file)
     elif param_len == 4:
         tx = params[0]
         ty = params[1]
         tz = params[2]
         twist = params[3]
-        configuration_generate(tx, ty, tz, twist)
+        configuration_generate(tx, ty, tz, twist,cost,final_struct_file)
 
 
 def energy_history(hcost, hpos):
     print("\n Log: code stopped due to either meeting convergence criteria or exceeding the max iterations ")
     print("\n Log: saving the trajectory ")
+    conf_name, _ = os.path.splitext(input_struct)
+    traj_file_name = conf_name + "_" + "traj.out"
     header = ["#iter", "tx", "ty", "tz", "twist","energy"]
-    with open("traj.out", "w") as fp:
+    with open(traj_file_name, "w") as fp:
         fp.writelines("{:>4}	   ".format(head) for head in header)
         fp.write("\n")
         for iter_num in range(len(hcost)):
@@ -469,9 +480,11 @@ def energy_history(hcost, hpos):
 fp.close()
 
 def swarm_history(swarm_cost_history):
-    print("\n Log: saving the trajectory ")
+    #print("\n Log: saving the trajectory ")
+    conf_name, _ = os.path.splitext(input_struct)
+    swarm_traj_file_name = conf_name + "_" + "swarm_traj.out"
     header = ["#iter", "#Particle","tx","ty","tz","twist","energy"]
-    with open("swarm_traj.out", "w") as fp:
+    with open(swarm_traj_file_name, "w") as fp:
         fp.writelines("{:>4}	     ".format(head) for head in header)
         fp.write("\n")
         
@@ -489,7 +502,9 @@ def swarm_history(swarm_cost_history):
 # the plane normal is along z-axis
 
 
-def configuration_generate(tx, ty, tz, twist):
+def configuration_generate(tx, ty, tz, twist,cost=None,output_file_name=None):
+    
+    
     tmpconfig = "tmpconfig"
     input_in = (
         "orient.py "
@@ -568,37 +583,55 @@ def configuration_generate(tx, ty, tz, twist):
             os.system(input_in)
 
     # combining the files
+    
     with open(input_struct, "r") as fp:
+        
         natom = fp.readline().rstrip()
     fp.close()
-
+    
     totatom = int(natom) * size
     files = [f for f in os.listdir(".") if os.path.isfile(f) if "tmpconfig" in f]
     rotated_files = natsorted(files)
 
-    with open("generated_" + label + "_" + str(size) + ".xyz", "w") as f:
-        f.write(str(totatom) + "\n")
-        f.write("\n")
+    if output_file_name is None:
+       conf_name, _ = os.path.splitext(input_struct)
+       output_struct_file = "generated_" + label + "_" + str(size) +"_"+conf_name + ".xyz"
+       write_mode = 'w'
+    else:
+       output_struct_file = output_file_name
+       write_mode = 'a'
 
-        for file in rotated_files:
-            with open(file, "r") as fp:
-                fp.readline()
-                fp.readline()
-                for atoms in range(int(natom)):
-         	     
-                    line = fp.readline().split()
-                    
-                    f.write("%s " % (line[0]) + " ")
-                    for i in range(1, len(line)):
-                        f.write("%-7.3f" % (float(line[i])) + " ")
-                    f.write("\n")
+    with open(output_struct_file, write_mode) as f:
+       if cost is not None:
+          f.write(str(totatom)+ "\n")
+          f.write("\n")
+          #en_output = "Energy: "+ str(cost) +" kJ/mol"
+          #f.write(str(en_output))
+          #f.write("\n")
+       else:
+          f.write(str(totatom)+ "\n")
+          f.write("\n")
+       for file in rotated_files:
+         with open(file, "r") as fp:
+            fp.readline()
+            fp.readline()
+            for atoms in range(int(natom)):
+               line = fp.readline().split()
+               f.write("%s " % (line[0]) + " ")
+               for i in range(1, len(line)):
+                  f.write("%-7.3f" % (float(line[i])) + " ")
+               f.write("\n")
+             
+         fp.close()
+       
+    
+        #os.system("rm -f tmpconfig*")
 
-        os.system("rm -f tmpconfig*")
-
+    return output_struct_file
 
 # 'traj.out' to dump the energy and the order parameters at each optimization step.
 # if the file exists, create the backup files
-
+'''
 if os.path.exists("traj.out"):
     i = 1
     while os.path.exists("#traj.out." + str(i) + "#"):
@@ -606,81 +639,129 @@ if os.path.exists("traj.out"):
 
     print(" LOG: traj.out renamed to #traj.out."+ str(i) + "#")
     os.system("cp traj.out \#traj.out." + str(i) + "\#")
+'''
+if os.path.exists("stacked_conformers.xyz"):
+    i = 1
+    while os.path.exists("#stacked_conformers.xyz." + str(i) + "#"):
+        i += 1
+
+    print(" LOG: stacked_conformers.xyz is renamed to #stacked_conformers.xyz."+ str(i) + "#")
+    os.system("cp stacked_conformers.xyz \#stacked_conformers.xyz." + str(i) + "\#")
+    os.remove("stacked_conformers.xyz")
 
 
-if env_check():
-    print(" LOG: All inputs are set \n")
-    if pso_type == "Localbest":
-        options["k"] = neighbour
-        options["p"] = distance
-        if oh_strategy == False:
-            pso_type = "Localbest"
-            print(" LOG: Running LocalbestPSO algorithm")
-            optimizer = LocalBestPSO(
-                n_particles=n_particles,
-                dimensions=dimensions,
-                options=options,
-                bounds=bounds,
-                ftol=ftol,
-                ftol_iter=ftol_iter,
-            )
-            cost, pos = optimizer.optimize(energy_min, iterations)
-            energy_history(optimizer.cost_history, optimizer.bpos_history)
-            swarm_history(swarm_cost_history)
+with open(input_struct, 'r') as fp:
+   natom = fp.readline().strip()
+   line_counter = 0
+   conformer_count = 0
+   conformer_coordinates = []
+   for line in fp:
+     if(len(re.findall(r"[-+]?(?:\d*\.*\d+)", line))>1):
+       line = line.strip()
+       line_counter += 1
+       conformer_coordinates.append(line)
+       if(line_counter == int(natom)):
+         conformer_count += 1
+         line_counter =0
+         file_name = f'conformer_{conformer_count}.xyz'
+         with open(file_name, 'w') as file:
+           file.write(natom)
+           file.write("\n\n")
+           for coord in conformer_coordinates:
+             formatted_values = ["{:>1f}".format(value) if isinstance(value, (int, float)) else "{:>1}".format(value) for value in coord]
+             line = "".join(formatted_values) + "\n"
+             file.writelines(line)
+         #file.close()
+    
+         conformer_coordinates.clear()
+   #file.close()
 
-        elif oh_strategy == True:
-            print(" LOG: Running LocalbestPSO algorithm with oh_strategy")
-            pso_type = "Localbest"
-            start_opts["k"] = end_opts["k"] = neighbour
-            start_opts["p"] = end_opts["p"] = distance
-            oh_strategy = {"w": "exp_decay", "c1": "nonlin_mod", "c2": "lin_variation"}
-            cost, pos = optimize(
-                energy_min, iterations, oh_strategy, start_opts, end_opts
-            )
-            energy_history(cost_history, position_history)
-            swarm_history(swarm_cost_history)
 
-    elif pso_type == "Globalbest":
-        if oh_strategy == False:
-            print(" LOG: Running GlobalbestPSO algorithm")
-            pso_type = "Globalbest"
-            optimizer = GlobalBestPSO(
-                n_particles=n_particles,
-                dimensions=dimensions,
-                options=options,
-                bounds=bounds,
-                ftol=ftol,
-                ftol_iter=ftol_iter,
-            )
-            cost, pos = optimizer.optimize(energy_min, iterations)
-            energy_history(optimizer.cost_history, optimizer.bpos_history)
-            swarm_history(swarm_cost_history)
 
-        elif oh_strategy == True:
-            pso_type = "Globalbest"
-            print(" LOG: Running GlobalbestPSO algorithm with oh_strategy")
-            oh_strategy = {"w": "exp_decay", "c1": "nonlin_mod", "c2": "lin_variation"}
-            cost, pos = optimize(
-                energy_min, iterations, oh_strategy, start_opts, end_opts
-            )
-            energy_history(cost_history, position_history)
-            swarm_history(swarm_cost_history)
+for input_file in natsorted(glob.glob("conformer_*.xyz")):
+    print(" LOG: working with: "+str(input_file))
+    input_struct = input_file
+    counter=0
+    #cost=0
+    if env_check():
+        print(" LOG: All inputs are set \n")
+        #global cost
+        if pso_type == "Localbest":
+            options["k"] = neighbour
+            options["p"] = distance
+            if oh_strategy == False:
+                pso_type = "Localbest"
+                print(" LOG: Running LocalbestPSO algorithm")
+                optimizer = LocalBestPSO(
+                    n_particles=n_particles,
+                    dimensions=dimensions,
+                    options=options,
+                    bounds=bounds,
+                    ftol=ftol,
+                    ftol_iter=ftol_iter,
+                )
+                cost, pos = optimizer.optimize(energy_min, iterations)
+                energy_history(optimizer.cost_history, optimizer.bpos_history)
+                swarm_history(swarm_cost_history)
 
-    opt_struct(pos)
-    print(
-       "\n LOG: "
-       + " where "
-       + "   energy = "
-       + str(cost)
-       + "\n"
-       + "   order parameters = "
-       + str(pos)
-       )
-    print(" LOG: successfully generated the final structure")
-    print(" LOG: END")
+            elif oh_strategy == True:
+                print(" LOG: Running LocalbestPSO algorithm with oh_strategy")
+                pso_type = "Localbest"
+                start_opts["k"] = end_opts["k"] = neighbour
+                start_opts["p"] = end_opts["p"] = distance
+                oh_strategy = {"w": "exp_decay", "c1": "nonlin_mod", "c2": "lin_variation"}
+                cost, pos = optimize(
+                    energy_min, iterations, oh_strategy, start_opts, end_opts
+                )
+                energy_history(cost_history, position_history)
+                swarm_history(swarm_cost_history)
 
-    print(
-          r"""
+        elif pso_type == "Globalbest":
+            if oh_strategy == False:
+                print(" LOG: Running GlobalbestPSO algorithm")
+                pso_type = "Globalbest"
+                optimizer = GlobalBestPSO(
+                    n_particles=n_particles,
+                    dimensions=dimensions,
+                    options=options,
+                    bounds=bounds,
+                    ftol=ftol,
+                    ftol_iter=ftol_iter,
+                )
+                cost, pos = optimizer.optimize(energy_min, iterations)
+                energy_history(optimizer.cost_history, optimizer.bpos_history)
+                swarm_history(swarm_cost_history)
+                print("Done")
+
+            elif oh_strategy == True:
+                pso_type = "Globalbest"
+                print(" LOG: Running GlobalbestPSO algorithm with oh_strategy")
+                oh_strategy = {"w": "exp_decay", "c1": "nonlin_mod", "c2": "lin_variation"}
+                cost, pos = optimize(
+                    energy_min, iterations, oh_strategy, start_opts, end_opts
+                )
+                energy_history(cost_history, position_history)
+                swarm_history(swarm_cost_history)
+        
+        
+    
+        opt_struct(cost,pos)
+        print(
+           "\n LOG: "
+           + " where "
+           + "   energy = "
+           + str(cost)
+           + "\n"
+           + "   order parameters = "
+           + str(pos)
+           )
+        print(" LOG: successfully generated the final structure")
+        print(" LOG: END")
+        print("\n")
+#cleaning the enviornment 
+clean_up_files()
+print(
+      r"""
   ____                 _   ____               _ 
  / ___| ___   ___   __| | | __ ) _   _  ___  | |
 | |  _ / _ \ / _ \ / _` | |  _ \| | | |/ _ \ | |
