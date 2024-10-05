@@ -1,14 +1,11 @@
 # any line starting with '#' or white space is ignored
 
-tx_lower=0.0
-tx_upper=2.0
-ty_lower=0.0
-ty_upper=2.0
-tz_lower=3.5
-tz_upper=3.8
-twist_lower=120
-twist_upper=180
-input_struct=input.xyz
-atoms=7,45,16
-stack_size=3
-label=pdi 
+tx=0.0
+ty=0.0
+tz=
+twist=
+filename=
+atoms1=
+atoms2=
+atoms3=
+size=
